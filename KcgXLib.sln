@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kcg-xlib", "kcg-xlib\kcg-xlib.csproj", "{86C4B17C-84F2-4B7C-8E55-BBEC9500B4B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "external-libraries", "external-libraries\external-libraries.csproj", "{E421CD71-06B1-4BF7-B53C-79478127ED13}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-hash", "lib-hash\lib-hash.csproj", "{E421CD71-06B1-4BF7-B53C-79478127ED13}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-compression", "lib-compression\lib-compression.csproj", "{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}"
 EndProject

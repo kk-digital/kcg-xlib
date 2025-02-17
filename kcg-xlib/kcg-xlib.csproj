@@ -6,9 +6,5 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
     </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\external-libraries\external-libraries.csproj" />
-    </ItemGroup>
-
+    
 </Project>
