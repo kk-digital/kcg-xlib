@@ -7,4 +7,9 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\lib-assert\lib-assert.csproj" />
+        <ProjectReference Include="..\lib-log\lib-log.csproj" />
+        <ProjectReference Include="..\lib-os\lib-os.csproj" />
+    </ItemGroup>
 </Project>

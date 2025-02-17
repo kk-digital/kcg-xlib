@@ -5,5 +5,8 @@
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\lib-log\lib-log.csproj" />
+    </ItemGroup>
 
 </Project>

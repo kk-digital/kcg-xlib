@@ -6,4 +6,8 @@
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\lib-assert\lib-assert.csproj" />
+    </ItemGroup>
 </Project>
