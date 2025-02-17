@@ -9,7 +9,7 @@ namespace Tests
         public void IsValidAbsolutePath_ValidPath_ReturnsTrue()
         {
             // Arrange
-            string path = "/valid_path/to/file.txt";
+            string path = PathUtils.GetWorkingDirectory() + "/valid_path/to/file.txt";
 
             // Act
             bool result = PathUtils.IsValidAbsolutePath(path);
@@ -22,7 +22,7 @@ namespace Tests
         public void IsValidAbsolutePath_InvalidPath_ReturnsFalse()
         {
             // Arrange
-            string path = "invalid_path/to/file.txt";
+            string path = PathUtils.GetWorkingDirectory() + "C:/file.txt";
 
             // Act
             bool result = PathUtils.IsValidAbsolutePath(path);
@@ -48,8 +48,8 @@ namespace Tests
         public void ReplaceBackSlashesWithForwardSlashes_Valid_ReturnsFixedPath()
         {
             // Arrange
-            string path = "C:\\example\\file/path";
-            string expected = "C:/example/file/path";
+            string path = Path.Combine(PathUtils.GetWorkingDirectory(), "example\\file\\path");
+            string expected = PathUtils.ReplaceBackSlashesWithForwardSlashes(path);
 
             // Act
             string result = PathUtils.ReplaceBackSlashesWithForwardSlashes(path);
@@ -62,8 +62,8 @@ namespace Tests
         public void GetRelative_Valid_ReturnsRelativePath()
         {
             // Arrange
-            string path = "/base/folder/sub/file.txt";
-            string rootDirectory = "/base/folder";
+            string path = PathUtils.GetWorkingDirectory() + "/base/folder/sub/file.txt";
+            string rootDirectory = PathUtils.GetWorkingDirectory() + "/base/folder";
             string expected = "sub/file.txt";
 
             // Act

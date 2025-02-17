@@ -1,18 +1,19 @@
 using FileLib;
+using UtilityIO;
 namespace Tests
 {
 
     [TestFixture]
     public class FileUtilsTests
     {
-        private const string TestFilePath = "C:/temp/TestFile.txt";
+        private const string TestFilePath = "TestFile.txt";
 
         [SetUp]
         public void SetUp()
         {
-            if (System.IO.File.Exists(TestFilePath))
+            if (System.IO.File.Exists(PathUtils.GetWorkingDirectory() + "/" + TestFilePath.Replace('\\', '/')))
             {
-                System.IO.File.Delete(TestFilePath);
+                System.IO.File.Delete(PathUtils.GetWorkingDirectory() + "/" + TestFilePath.Replace('\\', '/'));
             }
         }
 
@@ -20,7 +21,7 @@ namespace Tests
         public void FileExists_ValidFilePath_ReturnsTrue()
         {
             // Arrange
-            string filePath = TestFilePath;
+            string filePath = PathUtils.GetWorkingDirectory() + "/" + TestFilePath.Replace('\\', '/');
             System.IO.File.Create(filePath).Close();
 
             // Act
@@ -34,7 +35,7 @@ namespace Tests
         public void FileExists_InvalidFilePath_ReturnsFalse()
         {
             // Arrange
-            string filePath = TestFilePath;
+            string filePath = PathUtils.GetWorkingDirectory() + "/" + TestFilePath.Replace('\\', '/');
 
             // Act
             bool result = FileUtils.FileExists(filePath);
