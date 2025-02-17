@@ -3,5 +3,8 @@
   &lt;Or&gt;&#xD;
     &lt;ProjectFile&gt;447A3EC0-6CB0-40DF-B706-98839793598C/f:AssertTests.cs&lt;/ProjectFile&gt;&#xD;
     &lt;ProjectFile&gt;447A3EC0-6CB0-40DF-B706-98839793598C/f:JsonTests.cs&lt;/ProjectFile&gt;&#xD;
+    &lt;TestAncestor&gt;&#xD;
+      &lt;TestId&gt;NUnit3x::447A3EC0-6CB0-40DF-B706-98839793598C::net7.0::Tests.HashTests.ToStringTest&lt;/TestId&gt;&#xD;
+    &lt;/TestAncestor&gt;&#xD;
   &lt;/Or&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
