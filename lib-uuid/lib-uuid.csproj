@@ -1,13 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <RootNamespace>externalLibraries</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <LangVersion>preview</LangVersion>
-        <DefineConstants>BLAKE_PUBLIC</DefineConstants>
     </PropertyGroup>
+
 
 </Project>

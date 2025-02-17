@@ -2,13 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <RootNamespace>kcgXLib</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\external-libraries\external-libraries.csproj" />
-    </ItemGroup>
 
 </Project>
