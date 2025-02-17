@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xLib", "xLib\xLib.csproj", "{86C4B17C-84F2-4B7C-8E55-BBEC9500B4B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kcg-xlib", "kcg-xlib\kcg-xlib.csproj", "{86C4B17C-84F2-4B7C-8E55-BBEC9500B4B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
