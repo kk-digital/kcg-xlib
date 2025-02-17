@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kcg-xlib", "kcg-xlib\kcg-xl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "external-libraries", "external-libraries\external-libraries.csproj", "{E421CD71-06B1-4BF7-B53C-79478127ED13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-compression", "lib-compression\lib-compression.csproj", "{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{E421CD71-06B1-4BF7-B53C-79478127ED13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E421CD71-06B1-4BF7-B53C-79478127ED13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E421CD71-06B1-4BF7-B53C-79478127ED13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
