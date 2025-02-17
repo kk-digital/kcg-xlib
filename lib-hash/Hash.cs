@@ -50,7 +50,7 @@ namespace lib
         /// </summary>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public static async Task<Hash> CreateAsync(string filePath)
+        public static Hash Create(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
             {
@@ -62,7 +62,7 @@ namespace lib
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                    await fileStream.CopyToAsync(memoryStream);
+                    fileStream.CopyTo(memoryStream);
                     hashBytes = Blake2s.ComputeHash(memoryStream.ToArray());
                 }
             }
