@@ -17,4 +17,16 @@
         <PackageReference Include="coverlet.collector" Version="3.2.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\lib-assert\lib-assert.csproj" />
+      <ProjectReference Include="..\lib-compression\lib-compression.csproj" />
+      <ProjectReference Include="..\lib-hash\lib-hash.csproj" />
+      <ProjectReference Include="..\lib-io\lib-io.csproj" />
+      <ProjectReference Include="..\lib-json\lib-json.csproj" />
+      <ProjectReference Include="..\lib-log\lib-log.csproj" />
+      <ProjectReference Include="..\lib-os\lib-os.csproj" />
+      <ProjectReference Include="..\lib-time\lib-time.csproj" />
+      <ProjectReference Include="..\lib-uuid\lib-uuid.csproj" />
+    </ItemGroup>
+
 </Project>
