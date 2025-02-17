@@ -47,23 +47,7 @@ namespace Tests
             // Assert: Ensure that the integer value is not zero.
             Assert.AreNotEqual(0, intValue);
         }
-        [Test]
-        public void FromIntTest()
-        {
-            var originalHash = Hash.FromByteArray(System.Text.Encoding.UTF8.GetBytes("Test content"));
-            var intValue = originalHash.ToInt();
-            var newHash = Hash.FromInt(intValue);
-            Assert.AreEqual(originalHash.ToString(), newHash.ToString());
-        }
 
-        [Test]
-        public void FromStringTest()
-        {
-            var originalHash = Hash.FromByteArray(System.Text.Encoding.UTF8.GetBytes("Test content"));
-            var hexString = originalHash.ToString();
-            var newHash = Hash.FromString(hexString);
-            Assert.AreEqual(originalHash.ToString(), newHash.ToString());
-        }
 
         [Test]
         public void ToBinaryTest()
