@@ -5,6 +5,9 @@
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\lib-hash\lib-hash.csproj" />
+    </ItemGroup>
 
 
 </Project>
