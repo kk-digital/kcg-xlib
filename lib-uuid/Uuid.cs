@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using assert;
 
 namespace lib
 {
@@ -20,10 +21,7 @@ namespace lib
         /// <exception cref="ArgumentException">Thrown when the value is zero.</exception>
         public Uuid64(ulong value)
         {
-            if (value == 0)
-            {
-                throw new ArgumentException("Use one of the static methods to get a Uuid64 instance");
-            }
+            Utils.Assert(value != 0, "Use one of the static methods to get a Uuid64 instance");
 
             _value = value;
         }
@@ -84,10 +82,7 @@ namespace lib
         /// <exception cref="ArgumentException">Thrown when the date formats list is empty or the date does not match any format.</exception>
         public static Uuid64 CreateNewFromDateString(string date, List<string> dateFormats)
         {
-            if (dateFormats == null || dateFormats.Count == 0)
-            {
-                throw new ArgumentException("date_formats must include at least one format");
-            }
+            Utils.Assert(dateFormats != null && dateFormats.Count != 0, "date_formats must include at least one format");
 
             foreach (var fmt in dateFormats)
             {
@@ -97,7 +92,8 @@ namespace lib
                 }
             }
 
-            throw new ArgumentException($"time data '{date}' does not match any of the provided formats");
+            Utils.Assert(false, $"time data '{date}' does not match any of the provided formats");
+            return InvalidUuid();
         }
 
         /// <summary>
@@ -184,10 +180,7 @@ namespace lib
         /// <exception cref="ArgumentException">Thrown when the string format is invalid.</exception>
         public static Uuid64 FromDefinedString(string value)
         {
-            if (!value.StartsWith("def:"))
-            {
-                throw new ArgumentException("Invalid defined string format");
-            }
+            Utils.Assert(value.StartsWith("def:"), "Invalid defined string format");
             return FromFormattedString(value.Substring(4));
         }
 
@@ -199,10 +192,7 @@ namespace lib
         /// <exception cref="ArgumentException">Thrown when the string format is invalid.</exception>
         public static Uuid64 FromReferencedString(string value)
         {
-            if (!value.StartsWith("ref:"))
-            {
-                throw new ArgumentException("Invalid referenced string format");
-            }
+            Utils.Assert(value.StartsWith("ref:"), "Invalid referenced string format");
             return FromFormattedString(value.Substring(4));
         }
 
@@ -215,10 +205,7 @@ namespace lib
         {
             var validationRegex = new Regex(@"^[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}$");
 
-            if (!validationRegex.IsMatch(uuidString))
-            {
-                throw new ArgumentException("Invalid UUID string");
-            }
+            Utils.Assert(validationRegex.IsMatch(uuidString), "Invalid UUID string");
 
             var uuidPosixDate = Convert.ToUInt32(uuidString.Replace("-", "").Substring(0, 8), 16);
             ValidateDateNotInTheFuture(uuidPosixDate);
@@ -231,10 +218,7 @@ namespace lib
         /// <exception cref="ArgumentException">Thrown when the value is not valid or the date is in the future.</exception>
         private static void ValidateUuidIntValue(ulong uuidInt)
         {
-            if (uuidInt < 0 || uuidInt > 18446744073709551615)
-            {
-                throw new ArgumentException("The value is not a valid UUID");
-            }
+            Utils.Assert((uuidInt >= 0 && uuidInt <= 18446744073709551615), "The value is not a valid UUID");
 
             var uuidPosixDate = (uint)(uuidInt >> 32);
             ValidateDateNotInTheFuture(uuidPosixDate);
@@ -249,10 +233,7 @@ namespace lib
         {
             var currentPosixDate = (uint)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() & 0xFFFFFFFF);
 
-            if (posixDateValue > currentPosixDate + 3600)
-            {
-                throw new ArgumentException("The UUID date part must not be more than one hour in the future");
-            }
+            Utils.Assert(!(posixDateValue > currentPosixDate + 3600), "The UUID date part must not be more than one hour in the future");
         }
 
         /// <summary>
