@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tests", "tests\tests.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-minio", "lib-minio\lib-minio.csproj", "{C2F6771C-85BD-46A6-B808-62F25A26C128}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-http", "lib-http\lib-http.csproj", "{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{C2F6771C-85BD-46A6-B808-62F25A26C128}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2F6771C-85BD-46A6-B808-62F25A26C128}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2F6771C-85BD-46A6-B808-62F25A26C128}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
