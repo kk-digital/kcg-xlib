@@ -1,24 +1,29 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-hash", "lib-hash\lib-hash.csproj", "{E421CD71-06B1-4BF7-B53C-79478127ED13}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-hash", "lib-hash\lib-hash.csproj", "{E421CD71-06B1-4BF7-B53C-79478127ED13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-compression", "lib-compression\lib-compression.csproj", "{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-compression", "lib-compression\lib-compression.csproj", "{E6418E7F-60C5-4202-9DB9-F4DC21DBE5E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-assert", "lib-assert\lib-assert.csproj", "{49423882-FD3E-4C38-9C3C-88BBD266875A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-assert", "lib-assert\lib-assert.csproj", "{49423882-FD3E-4C38-9C3C-88BBD266875A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-io", "lib-io\lib-io.csproj", "{0E6FA45A-15AF-4E05-BA48-1879B199F557}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-io", "lib-io\lib-io.csproj", "{0E6FA45A-15AF-4E05-BA48-1879B199F557}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-json", "lib-json\lib-json.csproj", "{D69205EE-6C0B-40D3-9590-5E06A9B84665}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-json", "lib-json\lib-json.csproj", "{D69205EE-6C0B-40D3-9590-5E06A9B84665}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-os", "lib-os\lib-os.csproj", "{E919EEDF-4A33-4EFA-84F9-F52E902BE6AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-os", "lib-os\lib-os.csproj", "{E919EEDF-4A33-4EFA-84F9-F52E902BE6AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-uuid", "lib-uuid\lib-uuid.csproj", "{1294FC33-F3A7-49EB-83B8-70F0C743E555}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-uuid", "lib-uuid\lib-uuid.csproj", "{1294FC33-F3A7-49EB-83B8-70F0C743E555}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-time", "lib-time\lib-time.csproj", "{20CCAB1D-FFF6-4B3E-A96F-DE63748C9915}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-time", "lib-time\lib-time.csproj", "{20CCAB1D-FFF6-4B3E-A96F-DE63748C9915}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-log", "lib-log\lib-log.csproj", "{135C206F-DF75-4DE9-8E1F-C015DF67AA9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-log", "lib-log\lib-log.csproj", "{135C206F-DF75-4DE9-8E1F-C015DF67AA9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{447A3EC0-6CB0-40DF-B706-98839793598C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tests", "tests\tests.csproj", "{447A3EC0-6CB0-40DF-B706-98839793598C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-minio", "lib-minio\lib-minio.csproj", "{C2F6771C-85BD-46A6-B808-62F25A26C128}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,5 +71,12 @@ Global
 		{447A3EC0-6CB0-40DF-B706-98839793598C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{447A3EC0-6CB0-40DF-B706-98839793598C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{447A3EC0-6CB0-40DF-B706-98839793598C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2F6771C-85BD-46A6-B808-62F25A26C128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2F6771C-85BD-46A6-B808-62F25A26C128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2F6771C-85BD-46A6-B808-62F25A26C128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2F6771C-85BD-46A6-B808-62F25A26C128}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
