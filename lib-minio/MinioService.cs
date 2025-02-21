@@ -1,6 +1,4 @@
-﻿using ImageMagick;
-using Microsoft.Extensions.Configuration;
-using Minio;
+﻿using Minio;
 using Minio.DataModel;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
@@ -35,42 +33,6 @@ public class MinioService
         _minioClient.Build();
     }
 
-    //========================================================================================================
-    public static string GetMimeType(byte[] imageBytes)
-    {
-        using (var ms = new MemoryStream(imageBytes))
-        {
-            // Create a MagickImage from the byte array
-            using (var image = new MagickImage(ms))
-            {
-                // Get the image format
-                var format = image.Format;
-
-                // Map the format to MIME type
-                switch (format)
-                {
-                    case MagickFormat.Jpeg:
-                        return "image/jpeg";
-                    case MagickFormat.Avif:
-                        return "image/avif";
-                    case MagickFormat.Png:
-                        return "image/png";
-                    case MagickFormat.Gif:
-                        return "image/gif";
-                    case MagickFormat.Bmp:
-                        return "image/bmp";
-                    case MagickFormat.Tiff:
-                        return "image/tiff";
-                    case MagickFormat.WebP:
-                        return "image/webp";
-                    case MagickFormat.Heic:
-                        return "image/heic";
-                    default:
-                        return "application/octet-stream"; // Fallback for unknown types
-                }
-            }
-        }
-    }
     //==========================================================================================================================
     // Upload an image
     public async Task<string> UploadImageAsync(byte[] file, string objectName)
@@ -113,12 +75,7 @@ public class MinioService
     {
         try
         {
-            string contentType = "";
-
-            contentType = GetMimeType(fileData);
-
-            if (string.IsNullOrEmpty(contentType))
-                return false; // invalid content type
+            string contentType = "application/octet-stream";
 
             // Check if the object already exists in the bucket
             if (await ObjectExistInBucket(objectName))
