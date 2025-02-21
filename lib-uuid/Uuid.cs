@@ -15,6 +15,11 @@ namespace lib
         private readonly ulong _value;
 
         /// <summary>
+        /// Gets the default UUID with all zeros.
+        /// </summary>
+        public static Uuid64 Default => new Uuid64(0);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Uuid64"/> class.
         /// </summary>
         /// <param name="value">The 64-bit value of the UUID.</param>
