@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-minio", "lib-minio\lib-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-http", "lib-http\lib-http.csproj", "{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib-http-server", "lib-http-server\lib-http-server.csproj", "{AE13C0A7-737D-44C3-8068-637976FCD2FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33DD780A-68AD-4DD2-BF9F-DE63D8B4A7AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE13C0A7-737D-44C3-8068-637976FCD2FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE13C0A7-737D-44C3-8068-637976FCD2FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE13C0A7-737D-44C3-8068-637976FCD2FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE13C0A7-737D-44C3-8068-637976FCD2FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
