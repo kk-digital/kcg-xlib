@@ -12,7 +12,7 @@ namespace HttpServer;
 public class HttpServer
 {
     private readonly WebApplicationBuilder _builder;
-    private WebApplication _app = null!;
+    public WebApplication app = null!;
     private IConfigurationRoot _appSettings = null!;
     private int _connectionCounter = 0;  
 
@@ -23,9 +23,9 @@ public class HttpServer
 
     public void BuildServer()
     {
-        if (_app == null)
+        if (app == null)
         {
-            _app = _builder.Build();
+            app = _builder.Build();
             DefaultAppSetup();
         }
     }
@@ -90,26 +90,26 @@ public class HttpServer
 
     public void AddEndPoint(HttpMethod httpMethod, string route, Delegate handler)
     {
-        if (_app == null)
+        if (app == null)
         {
             return;
         }
 
         if (httpMethod == HttpMethod.Get)
         {
-            _app.MapGet(route, handler);
+            app.MapGet(route, handler);
         }
         else if (httpMethod == HttpMethod.Post)
         {
-            _app.MapPost(route, handler);
+            app.MapPost(route, handler);
         }
         else if (httpMethod == HttpMethod.Put)
         {
-            _app.MapPut(route, handler);
+            app.MapPut(route, handler);
         }
         else if (httpMethod == HttpMethod.Delete)
         {
-            _app.MapDelete(route, handler);
+            app.MapDelete(route, handler);
         }
         else
         {
@@ -142,9 +142,9 @@ public class HttpServer
     public void DefaultAppSetup()
     {
         // Enable CORS
-        _app.UseCors("AllowSpecificOrigin");
-        _app.UseSwagger();
-        _app.UseSwaggerUI(options =>
+        app.UseCors("AllowSpecificOrigin");
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
             options.RoutePrefix = "docs";
@@ -154,7 +154,7 @@ public class HttpServer
 
         int ConnectionCounter = 0;  // Variable to track active number of connections
 
-        _app.Use(async (context, next) =>
+        app.Use(async (context, next) =>
         {
             int maxConnections = 1000; // Example limit. hardcoded for testing..this can be read from a settings file
             int currentConnections = Interlocked.Increment(ref ConnectionCounter); // Increment when a request starts
@@ -176,12 +176,12 @@ public class HttpServer
                 Interlocked.Decrement(ref ConnectionCounter);
             }
         });
-        _app.UseRouting();
+        app.UseRouting();
     }
 
     public void UseMiddleWare<TMiddleware>() where TMiddleware : class
     {
-        _app.UseMiddleware<TMiddleware>();
+        app.UseMiddleware<TMiddleware>();
     }
 
 }
