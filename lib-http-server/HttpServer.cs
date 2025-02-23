@@ -112,33 +112,24 @@ public class HttpServer
         method.Invoke(null, new object[] { _builder.Services });
     }
 
-    public void AddEndPoint(HttpMethod httpMethod, string route, Delegate handler)
+    public void AddGetEndPoint(string route, Delegate handler)
     {
-        if (app == null)
-        {
-            return;
-        }
-
-        if (httpMethod == HttpMethod.Get)
-        {
-            app.MapGet(route, handler);
-        }
-        else if (httpMethod == HttpMethod.Post)
-        {
-            app.MapPost(route, handler);
-        }
-        else if (httpMethod == HttpMethod.Put)
-        {
-            app.MapPut(route, handler);
-        }
-        else if (httpMethod == HttpMethod.Delete)
-        {
-            app.MapDelete(route, handler);
-        }
-        else
-        {
-            throw new NotSupportedException($"HTTP method {httpMethod} is not supported.");
-        }
+        app.MapGet(route, handler);
+    }
+    
+    public void AddPostEndPoint(string route, Delegate handler)
+    {
+        app.MapPost(route, handler);
+    }
+    
+    public void AddPutEndPoint(string route, Delegate handler)
+    {
+        app.MapPut(route, handler);
+    }
+    
+    public void AddDeleteEndPoint(string route, Delegate handler)
+    {
+        app.MapDelete(route, handler);
     }
 
     private void AddCORSService()
@@ -147,7 +138,7 @@ public class HttpServer
         {
             return;
         }
-
+        
         // Add CORS services
         string webUiUrl = _appSettings.GetSection("WebUI:Url").Value;
 
