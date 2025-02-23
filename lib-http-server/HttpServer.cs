@@ -9,55 +9,76 @@ using System.Reflection;
 
 namespace HttpServer;
 
+public struct HttpServerSetup
+{
+    public string[] args;
+    public IConfigurationRoot appSettings;
+    public string swaggerName;
+    public string swaggerVersion;
+    public string swaggerTitle;
+    public string swaggerDescription;
+    public Type[] scopedServices;
+    public int maxConnections;
+    public Type[] middlewares;
+
+}
+
 public class HttpServer
 {
     private readonly WebApplicationBuilder _builder;
-    public WebApplication app = null!;
-    private IConfigurationRoot _appSettings = null!;
+    public WebApplication app;
+    private IConfigurationRoot _appSettings;
     private int _connectionCounter = 0;  
 
-    public HttpServer(string[] args)
+    public HttpServer(HttpServerSetup serverSetup)
     {
-        _builder = WebApplication.CreateBuilder(args);
+        _builder = WebApplication.CreateBuilder(serverSetup.args);
+        SetConfig(serverSetup.appSettings);
+        SetLogging();
+        SetSwaggerGen(serverSetup.swaggerName,
+                      serverSetup.swaggerVersion,
+                      serverSetup.swaggerTitle,
+                      serverSetup.swaggerDescription);
+
+        foreach (var service in serverSetup.scopedServices)
+        {
+            AddScopedService(service);
+        }
+
+        AddCORSService();
+        BuildServer(serverSetup.maxConnections);
+
+        foreach (var middleware in serverSetup.middlewares)
+        {
+            UseMiddleware(middleware);
+        }
     }
 
-    public void BuildServer()
+    private void BuildServer(int maxConnections)
     {
         if (app == null)
         {
             app = _builder.Build();
-            DefaultAppSetup();
+            DefaultAppSetup(maxConnections);
         }
     }
 
-    public void SetConfig(string configBasePath, string configFileName)
+
+    private void SetConfig(IConfigurationRoot appSettings)
     {
-        string env = _builder.Environment.EnvironmentName;
-
-        if (_appSettings == null)
-        {
-            IConfigurationRoot _appSettings = new ConfigurationBuilder()
-                .SetBasePath(configBasePath)
-                .AddJsonFile($"{configFileName}.json", optional: false, reloadOnChange: false)
-                .AddJsonFile($"{configFileName}.{env}.json", optional: true, reloadOnChange: false)
-                .Build();
-
-            _builder.Services.AddSingleton<IConfiguration>(_appSettings);
-            _builder.Logging.ClearProviders();
-            _builder.Logging.AddConfiguration(_appSettings.GetSection("Logging"));
-            _builder.Logging.AddConsole();
-        }
+        _appSettings = appSettings;
+        _builder.Services.AddSingleton<IConfiguration>(_appSettings);
     }
-    public void SetConfig(IConfigurationRoot appSettings)
+
+    private void SetLogging()
     {
-        _builder.Services.AddSingleton<IConfiguration>(appSettings);
-        
         _builder.Logging.ClearProviders();
-        _builder.Logging.AddConfiguration(appSettings.GetSection("Logging"));
+        _builder.Logging.AddConfiguration(_appSettings.GetSection("Logging"));
         _builder.Logging.AddConsole();
     }
 
-    public void SetSwaggerGen(string name, string version, string title, string description)
+
+    private void SetSwaggerGen(string name, string version, string title, string description)
     { 
         _builder.Services.AddHttpContextAccessor(); // Register IHttpContextAccessor
         // Add services to the container.
@@ -80,12 +101,15 @@ public class HttpServer
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             options.CustomSchemaIds(type => type.ToString());
         });
-
     }
 
-    public void AddScopedService<TService>() where TService : class
+    private void AddScopedService(Type serviceType)
     {
-        _builder.Services.AddScoped<TService>();
+        var method = typeof(ServiceCollectionServiceExtensions)
+            .GetMethod("AddScoped", 1, new[] { typeof(IServiceCollection) })!
+            .MakeGenericMethod(serviceType);
+
+        method.Invoke(null, new object[] { _builder.Services });
     }
 
     public void AddEndPoint(HttpMethod httpMethod, string route, Delegate handler)
@@ -117,7 +141,7 @@ public class HttpServer
         }
     }
 
-    public void AddCORSService()
+    private void AddCORSService()
     {
         if (_appSettings == null)
         {
@@ -139,7 +163,7 @@ public class HttpServer
         });
     }
 
-    public void DefaultAppSetup()
+    private void DefaultAppSetup(int maxConnections)
     {
         // Enable CORS
         app.UseCors("AllowSpecificOrigin");
@@ -151,17 +175,13 @@ public class HttpServer
         });
 
         // Middleware to track current number of connections
-
-        int ConnectionCounter = 0;  // Variable to track active number of connections
-
         app.Use(async (context, next) =>
         {
-            int maxConnections = 1000; // Example limit. hardcoded for testing..this can be read from a settings file
-            int currentConnections = Interlocked.Increment(ref ConnectionCounter); // Increment when a request starts
+            int currentConnections = Interlocked.Increment(ref _connectionCounter); // Increment when a request starts
 
             if (currentConnections > maxConnections)
             {
-                Interlocked.Decrement(ref ConnectionCounter); // Decrement when a request ends
+                Interlocked.Decrement(ref _connectionCounter); // Decrement when a request ends
                 context.Response.StatusCode = 429; // Too Many Requests
                 await context.Response.WriteAsync("Server busy. Try again later.");
                 return;
@@ -173,15 +193,20 @@ public class HttpServer
             }
             finally
             {
-                Interlocked.Decrement(ref ConnectionCounter);
+                Interlocked.Decrement(ref _connectionCounter);
             }
         });
         app.UseRouting();
     }
 
-    public void UseMiddleWare<TMiddleware>() where TMiddleware : class
+    private void UseMiddleware(Type middlewareType)
     {
-        app.UseMiddleware<TMiddleware>();
+        var method = typeof(IApplicationBuilder)
+            .GetMethod("UseMiddleware", 1, Type.EmptyTypes)!
+            .MakeGenericMethod(middlewareType);
+
+        method.Invoke(app, null);
     }
+
 
 }
