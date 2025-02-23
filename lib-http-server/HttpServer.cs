@@ -9,17 +9,17 @@ using System.Reflection;
 
 namespace HttpServer;
 
-public struct HttpServerSetup
+public class HttpServerConfiguration
 {
-    public string[] args;
-    public IConfigurationRoot appSettings;
-    public string swaggerName;
-    public string swaggerVersion;
-    public string swaggerTitle;
-    public string swaggerDescription;
-    public Type[] scopedServices;
-    public int maxConnections;
-    public Type[] middlewares;
+    public required string[] args;
+    public required IConfigurationRoot appSettings;
+    public required string swaggerName;
+    public required string swaggerVersion;
+    public required string swaggerTitle;
+    public required string swaggerDescription;
+    public required Type[] scopedServices;
+    public required int maxConnections;
+    public required Type[] middlewares;
 
 }
 
@@ -30,25 +30,25 @@ public class HttpServer
     private IConfigurationRoot _appSettings;
     private int _connectionCounter = 0;  
 
-    public HttpServer(HttpServerSetup serverSetup)
+    public HttpServer(HttpServerConfiguration serverConfig)
     {
-        _builder = WebApplication.CreateBuilder(serverSetup.args);
-        SetConfig(serverSetup.appSettings);
+        _builder = WebApplication.CreateBuilder(serverConfig.args);
+        SetConfig(serverConfig.appSettings);
         SetLogging();
-        SetSwaggerGen(serverSetup.swaggerName,
-                      serverSetup.swaggerVersion,
-                      serverSetup.swaggerTitle,
-                      serverSetup.swaggerDescription);
+        SetSwaggerGen(serverConfig.swaggerName,
+                      serverConfig.swaggerVersion,
+                      serverConfig.swaggerTitle,
+                      serverConfig.swaggerDescription);
 
-        foreach (var service in serverSetup.scopedServices)
+        foreach (var service in serverConfig.scopedServices)
         {
             AddScopedService(service);
         }
 
         AddCORSService();
-        BuildServer(serverSetup.maxConnections);
+        BuildServer(serverConfig.maxConnections);
 
-        foreach (var middleware in serverSetup.middlewares)
+        foreach (var middleware in serverConfig.middlewares)
         {
             UseMiddleware(middleware);
         }
