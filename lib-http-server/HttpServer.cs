@@ -132,6 +132,10 @@ public class HttpServer
         app.MapDelete(route, handler);
     }
 
+    /*
+    Configures and adds CORS (Cross-Origin Resource Sharing) services to the application.
+    Allows requests only from the specified Web UI URL defined in the application settings.
+    */
     private void AddCORSService()
     {
         if (_appSettings == null)
