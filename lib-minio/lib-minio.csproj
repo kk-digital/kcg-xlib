@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.20" />
     <PackageReference Include="Minio" Version="6.0.4" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\lib-Uid\lib-Uid.csproj" />
+  </ItemGroup>
 </Project>
