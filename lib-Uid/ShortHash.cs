@@ -1,5 +1,5 @@
 
-namespace libUuid;
+namespace libUid;
 
 
 public class ShortHash
@@ -12,17 +12,17 @@ public class ShortHash
     
     public static UInt64 GenerateUUID()
     {
-        UInt64 uuid = 0UL;
+        UInt64 Uid = 0UL;
         
-        // Make sure to generate a valid UUID
-        while (uuid < MINIMUM_STARTING_UUID)
+        // Make sure to generate a valid Uid
+        while (Uid < MINIMUM_STARTING_UUID)
         {
             int unixTime32Bit = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() & 0xFFFFFFFF);
             int random32Bit   = Random.Shared.Next(); 
-            uuid = ((UInt64)random32Bit & 0xFFFFFFFFUL) | ((UInt64)unixTime32Bit << 32);
+            Uid = ((UInt64)random32Bit & 0xFFFFFFFFUL) | ((UInt64)unixTime32Bit << 32);
         }
 
-        return uuid;
+        return Uid;
     }
     
 }
