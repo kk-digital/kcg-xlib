@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-json", "lib-json\lib-js
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-os", "lib-os\lib-os.csproj", "{E919EEDF-4A33-4EFA-84F9-F52E902BE6AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-uuid", "lib-uuid\lib-uuid.csproj", "{1294FC33-F3A7-49EB-83B8-70F0C743E555}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-Uid", "lib-Uid\lib-Uid.csproj", "{1294FC33-F3A7-49EB-83B8-70F0C743E555}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lib-time", "lib-time\lib-time.csproj", "{20CCAB1D-FFF6-4B3E-A96F-DE63748C9915}"
 EndProject

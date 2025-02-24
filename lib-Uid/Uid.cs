@@ -8,33 +8,33 @@ using assert;
 namespace lib
 {
     /// <summary>
-    /// Represents a 64-bit UUID.
+    /// Represents a 64-bit Uid.
     /// </summary>
-    public class Uuid64
+    public class Uid64
     {
         private readonly ulong _value;
 
         /// <summary>
-        /// Gets the default UUID with all zeros.
+        /// Gets the default Uid with all zeros.
         /// </summary>
-        public static Uuid64 Default => new Uuid64(0);
+        public static Uid64 Default => new Uid64(0);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Uuid64"/> class.
+        /// Initializes a new instance of the <see cref="Uid64"/> class.
         /// </summary>
-        /// <param name="value">The 64-bit value of the UUID.</param>
+        /// <param name="value">The 64-bit value of the Uid.</param>
         /// <exception cref="ArgumentException">Thrown when the value is zero.</exception>
-        public Uuid64(ulong value)
+        public Uid64(ulong value)
         {
-            Utils.Assert(value != 0, "Use one of the static methods to get a Uuid64 instance");
+            Utils.Assert(value != 0, "Use one of the static methods to get a Uid64 instance");
 
             _value = value;
         }
 
         /// <summary>
-        /// Returns the string representation of the UUID.
+        /// Returns the string representation of the Uid.
         /// </summary>
-        /// <returns>The formatted UUID string.</returns>
+        /// <returns>The formatted Uid string.</returns>
         public override string ToString()
         {
             var hexString = _value.ToString("X16");
@@ -45,12 +45,12 @@ namespace lib
         }
 
         /// <summary>
-        /// Loads a UUID from various input formats.
+        /// Loads a Uid from various input formats.
         /// </summary>
         /// <param name="inputValue">The input value.</param>
-        /// <returns>The loaded UUID.</returns>
+        /// <returns>The loaded Uid.</returns>
         /// <exception cref="ArgumentException">Thrown when the input value is not supported.</exception>
-        public static Uuid64 LoadFromAny(object inputValue)
+        public static Uid64 LoadFromAny(object inputValue)
         {
             return inputValue switch
             {
@@ -58,34 +58,34 @@ namespace lib
                 string strValue when strValue.StartsWith("ref") => FromReferencedString(strValue),
                 string strValue => FromFormattedString(strValue),
                 int intValue => FromUInt64((ulong)intValue),
-                Uuid64 uuidValue => uuidValue,
+                Uid64 uuidValue => uuidValue,
                 _ => throw new ArgumentException("Input value not supported"),
             };
         }
 
         /// <summary>
-        /// Creates a new UUID with the specified date and hash.
+        /// Creates a new Uid with the specified date and hash.
         /// </summary>
         /// <param name="dateValue">The date value.</param>
         /// <param name="hash">The hash value.</param>
-        /// <returns>The created UUID.</returns>
-        public static Uuid64 CreateNewUuid(DateTime? dateValue = null, Hash? hash = null)
+        /// <returns>The created Uid.</returns>
+        public static Uid64 CreateNewUuid(DateTime? dateValue = null, Hash? hash = null)
         {
             dateValue ??= DateTime.UtcNow;
 
             return hash != null
-                ? new Uuid64(CreateRandomValueWithDateAndHash(dateValue.Value, hash))
-                : new Uuid64(CreateRandomValueWithDate(dateValue.Value));
+                ? new Uid64(CreateRandomValueWithDateAndHash(dateValue.Value, hash))
+                : new Uid64(CreateRandomValueWithDate(dateValue.Value));
         }
 
         /// <summary>
-        /// Creates a new UUID from a date string.
+        /// Creates a new Uid from a date string.
         /// </summary>
         /// <param name="date">The date string.</param>
         /// <param name="dateFormats">The list of date formats.</param>
-        /// <returns>The created UUID.</returns>
+        /// <returns>The created Uid.</returns>
         /// <exception cref="ArgumentException">Thrown when the date formats list is empty or the date does not match any format.</exception>
-        public static Uuid64 CreateNewFromDateString(string date, List<string> dateFormats)
+        public static Uid64 CreateNewFromDateString(string date, List<string> dateFormats)
         {
             Utils.Assert(dateFormats != null && dateFormats.Count != 0, "date_formats must include at least one format");
 
@@ -93,7 +93,7 @@ namespace lib
             {
                 if (DateTime.TryParseExact(date, fmt, null, System.Globalization.DateTimeStyles.None, out var dateValue))
                 {
-                    return new Uuid64(CreateRandomValueWithDate(dateValue));
+                    return new Uid64(CreateRandomValueWithDate(dateValue));
                 }
             }
 
@@ -102,46 +102,46 @@ namespace lib
         }
 
         /// <summary>
-        /// Creates a UUID from a 64-bit value.
+        /// Creates a Uid from a 64-bit value.
         /// </summary>
         /// <param name="value">The 64-bit value.</param>
-        /// <returns>The created UUID.</returns>
-        public static Uuid64 FromUInt64(ulong value)
+        /// <returns>The created Uid.</returns>
+        public static Uid64 FromUInt64(ulong value)
         {
             ValidateUuidIntValue(value);
-            return new Uuid64(value);
+            return new Uid64(value);
         }
         
-        public static Uuid64 InvalidUuid()
+        public static Uid64 InvalidUuid()
         {
-            return new Uuid64(1);
+            return new Uid64(1);
         }
 
         /// <summary>
-        /// Creates a UUID from a formatted string.
+        /// Creates a Uid from a formatted string.
         /// </summary>
         /// <param name="value">The formatted string.</param>
-        /// <returns>The created UUID.</returns>
-        public static Uuid64 FromFormattedString(string value)
+        /// <returns>The created Uid.</returns>
+        public static Uid64 FromFormattedString(string value)
         {
             value = value.ToUpper();
             ValidateUuidString(value);
-            return new Uuid64(Convert.ToUInt64(value.Replace("-", ""), 16));
+            return new Uid64(Convert.ToUInt64(value.Replace("-", ""), 16));
         }
 
         /// <summary>
         /// Compares two UUIDs for equality.
         /// </summary>
-        /// <param name="uuid1">The first UUID.</param>
-        /// <param name="uuid2">The second UUID.</param>
+        /// <param name="uuid1">The first Uid.</param>
+        /// <param name="uuid2">The second Uid.</param>
         /// <returns>True if the UUIDs are equal, otherwise false.</returns>
-        public static bool CompareUuids(Uuid64 uuid1, Uuid64 uuid2)
+        public static bool CompareUuids(Uid64 uuid1, Uid64 uuid2)
         {
             return uuid1._value == uuid2._value;
         }
 
         /// <summary>
-        /// Converts the UUID to a 64-bit value.
+        /// Converts the Uid to a 64-bit value.
         /// </summary>
         /// <returns>The 64-bit value.</returns>
         public ulong ToUInt64()
@@ -151,7 +151,7 @@ namespace lib
         }
 
         /// <summary>
-        /// Converts the UUID to a formatted string.
+        /// Converts the Uid to a formatted string.
         /// </summary>
         /// <returns>The formatted string.</returns>
         public string ToFormattedStr()
@@ -160,7 +160,7 @@ namespace lib
         }
 
         /// <summary>
-        /// Converts the UUID to a defined string.
+        /// Converts the Uid to a defined string.
         /// </summary>
         /// <returns>The defined string.</returns>
         public string ToDefinedString()
@@ -169,7 +169,7 @@ namespace lib
         }
 
         /// <summary>
-        /// Converts the UUID to a referenced string.
+        /// Converts the Uid to a referenced string.
         /// </summary>
         /// <returns>The referenced string.</returns>
         public string ToReferencedString()
@@ -178,52 +178,52 @@ namespace lib
         }
 
         /// <summary>
-        /// Creates a UUID from a defined string.
+        /// Creates a Uid from a defined string.
         /// </summary>
         /// <param name="value">The defined string.</param>
-        /// <returns>The created UUID.</returns>
+        /// <returns>The created Uid.</returns>
         /// <exception cref="ArgumentException">Thrown when the string format is invalid.</exception>
-        public static Uuid64 FromDefinedString(string value)
+        public static Uid64 FromDefinedString(string value)
         {
             Utils.Assert(value.StartsWith("def:"), "Invalid defined string format");
             return FromFormattedString(value.Substring(4));
         }
 
         /// <summary>
-        /// Creates a UUID from a referenced string.
+        /// Creates a Uid from a referenced string.
         /// </summary>
         /// <param name="value">The referenced string.</param>
-        /// <returns>The created UUID.</returns>
+        /// <returns>The created Uid.</returns>
         /// <exception cref="ArgumentException">Thrown when the string format is invalid.</exception>
-        public static Uuid64 FromReferencedString(string value)
+        public static Uid64 FromReferencedString(string value)
         {
             Utils.Assert(value.StartsWith("ref:"), "Invalid referenced string format");
             return FromFormattedString(value.Substring(4));
         }
 
         /// <summary>
-        /// Validates the UUID string format.
+        /// Validates the Uid string format.
         /// </summary>
-        /// <param name="uuidString">The UUID string.</param>
+        /// <param name="uuidString">The Uid string.</param>
         /// <exception cref="ArgumentException">Thrown when the string format is invalid or the date is in the future.</exception>
         private static void ValidateUuidString(string uuidString)
         {
             var validationRegex = new Regex(@"^[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}$");
 
-            Utils.Assert(validationRegex.IsMatch(uuidString), "Invalid UUID string");
+            Utils.Assert(validationRegex.IsMatch(uuidString), "Invalid Uid string");
 
             var uuidPosixDate = Convert.ToUInt32(uuidString.Replace("-", "").Substring(0, 8), 16);
             ValidateDateNotInTheFuture(uuidPosixDate);
         }
 
         /// <summary>
-        /// Validates the UUID integer value.
+        /// Validates the Uid integer value.
         /// </summary>
-        /// <param name="uuidInt">The UUID integer value.</param>
+        /// <param name="uuidInt">The Uid integer value.</param>
         /// <exception cref="ArgumentException">Thrown when the value is not valid or the date is in the future.</exception>
         private static void ValidateUuidIntValue(ulong uuidInt)
         {
-            Utils.Assert((uuidInt >= 0 && uuidInt <= 18446744073709551615), "The value is not a valid UUID");
+            Utils.Assert((uuidInt >= 0 && uuidInt <= 18446744073709551615), "The value is not a valid Uid");
 
             var uuidPosixDate = (uint)(uuidInt >> 32);
             ValidateDateNotInTheFuture(uuidPosixDate);
@@ -238,7 +238,7 @@ namespace lib
         {
             var currentPosixDate = (uint)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() & 0xFFFFFFFF);
 
-            Utils.Assert(!(posixDateValue > currentPosixDate + 3600), "The UUID date part must not be more than one hour in the future");
+            Utils.Assert(!(posixDateValue > currentPosixDate + 3600), "The Uid date part must not be more than one hour in the future");
         }
 
         /// <summary>
