@@ -21,6 +21,27 @@ public class HttpServerConfiguration
     public required int maxConnections;
     public required Type[] middlewares;
 
+    public HttpServerConfiguration(
+        string[] args,
+        IConfigurationRoot appSettings,
+        string swaggerName,
+        string swaggerVersion,
+        string swaggerTitle,
+        string swaggerDescription,
+        Type[] scopedServices,
+        int maxConnections,
+        Type[] middlewares)
+    {
+        this.args = args;
+        this.appSettings = appSettings;
+        this.swaggerName = swaggerName;
+        this.swaggerVersion = swaggerVersion;
+        this.swaggerTitle = swaggerTitle;
+        this.swaggerDescription = swaggerDescription;
+        this.scopedServices = scopedServices;
+        this.maxConnections = maxConnections;
+        this.middlewares = middlewares;
+    }
 }
 
 public class HttpServer
