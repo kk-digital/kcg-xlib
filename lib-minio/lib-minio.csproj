@@ -12,6 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lib-Uid\lib-Uid.csproj" />
+    <ProjectReference Include="..\lib-uid\lib-uid.csproj" />
   </ItemGroup>
 </Project>

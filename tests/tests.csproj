@@ -26,7 +26,7 @@
       <ProjectReference Include="..\lib-log\lib-log.csproj" />
       <ProjectReference Include="..\lib-os\lib-os.csproj" />
       <ProjectReference Include="..\lib-time\lib-time.csproj" />
-      <ProjectReference Include="..\lib-Uid\lib-Uid.csproj" />
+      <ProjectReference Include="..\lib-uid\lib-uid.csproj" />
     </ItemGroup>
 
 </Project>
