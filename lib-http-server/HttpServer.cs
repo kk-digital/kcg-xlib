@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 
 
 namespace UtilityHttpServer;
@@ -18,6 +17,7 @@ public class HttpServerConfiguration
     public required string swaggerVersion;
     public required string swaggerTitle;
     public required string swaggerDescription;
+    public required string swaggerXml;
     public required int maxConnections;
 }
 
@@ -39,7 +39,8 @@ public class HttpServer
         SetSwaggerGen(serverConfig.swaggerName,
                       serverConfig.swaggerVersion,
                       serverConfig.swaggerTitle,
-                      serverConfig.swaggerDescription);
+                      serverConfig.swaggerDescription,
+                      serverConfig.swaggerXml);
 
         AddCORSService();
         _maxConnections = serverConfig.maxConnections;
@@ -76,7 +77,11 @@ public class HttpServer
     }
 
 
-    private void SetSwaggerGen(string name, string version, string title, string description)
+    private void SetSwaggerGen(string name, 
+                               string version, 
+                               string title, 
+                               string description, 
+                               string xml)
     { 
         builder.Services.AddHttpContextAccessor(); // Register IHttpContextAccessor
         // Add services to the container.
@@ -95,8 +100,7 @@ public class HttpServer
                 Description = description
             });
 
-            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xml));
             options.CustomSchemaIds(type => type.ToString());
         });
     }
