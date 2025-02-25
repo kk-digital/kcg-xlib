@@ -4,91 +4,93 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 
 
-namespace HttpServer;
+namespace UtilityHttpServer;
 
 public class HttpServerConfiguration
 {
     public required string[] args;
-    public required IConfigurationRoot appSettings;
+    public required string configPath;
+    public required string configName;
     public required string swaggerName;
     public required string swaggerVersion;
     public required string swaggerTitle;
     public required string swaggerDescription;
-    public required string swaggerFullPath;
-    public required Type[] scopedServices;
+    public required string swaggerXml;
     public required int maxConnections;
-    public required Type[] middlewares;
 }
 
 public class HttpServer
 {
-    private readonly WebApplicationBuilder _builder;
+    public WebApplicationBuilder builder;
     public WebApplication app;
-    private IConfigurationRoot _appSettings;
+    public IConfigurationRoot appSettings;
     private int _connectionCounter = 0;  
+    private int _maxConnections = 0;
+    private HttpServerConfiguration _serverConfig;
 
     public HttpServer(HttpServerConfiguration serverConfig)
     {
-        _builder = WebApplication.CreateBuilder(serverConfig.args);
-        SetConfig(serverConfig.appSettings);
+        _serverConfig = serverConfig;
+        builder = WebApplication.CreateBuilder(serverConfig.args);
+        appSettings = CreateConfig(serverConfig.configPath, serverConfig.configName);
         SetLogging();
         SetSwaggerGen(serverConfig.swaggerName,
                       serverConfig.swaggerVersion,
                       serverConfig.swaggerTitle,
                       serverConfig.swaggerDescription,
-                      serverConfig.swaggerFullPath);
-
-        foreach (var service in serverConfig.scopedServices)
-        {
-            AddScopedService(service);
-        }
+                      serverConfig.swaggerXml);
 
         AddCORSService();
-        BuildServer(serverConfig.maxConnections);
+        _maxConnections = serverConfig.maxConnections;
 
-        foreach (var middleware in serverConfig.middlewares)
-        {
-            UseMiddleware(middleware);
-        }
     }
 
-    private void BuildServer(int maxConnections)
+    public void BuildApp()
     {
         if (app == null)
         {
-            app = _builder.Build();
-            DefaultAppSetup(maxConnections);
+            app = builder.Build();
+            DefaultAppSetup(_maxConnections);
         }
     }
 
 
-    private void SetConfig(IConfigurationRoot appSettings)
+    private IConfigurationRoot CreateConfig(string configPath, string configName)
     {
-        _appSettings = appSettings;
-        _builder.Services.AddSingleton<IConfiguration>(_appSettings);
+        string configBasePath = Path.Combine(builder.Environment.ContentRootPath, configPath);
+        IConfigurationRoot appSettings = new ConfigurationBuilder()
+            .SetBasePath(configBasePath)
+            .AddJsonFile($"{configName}.json", optional: false, reloadOnChange: false)
+            .AddJsonFile($"{configName}.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+            .Build();
+
+        return appSettings;
     }
 
     private void SetLogging()
     {
-        _builder.Logging.ClearProviders();
-        _builder.Logging.AddConfiguration(_appSettings.GetSection("Logging"));
-        _builder.Logging.AddConsole();
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConfiguration(appSettings.GetSection("Logging"));
+        builder.Logging.AddConsole();
     }
 
 
-    private void SetSwaggerGen(string name, string version, string title, string description, string swaggerFullPath)
+    private void SetSwaggerGen(string name, 
+                               string version, 
+                               string title, 
+                               string description, 
+                               string xml)
     { 
-        _builder.Services.AddHttpContextAccessor(); // Register IHttpContextAccessor
+        builder.Services.AddHttpContextAccessor(); // Register IHttpContextAccessor
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        _builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddEndpointsApiExplorer();
         // Add services to the container.
         // Add Authorization Services
-        _builder.Services.AddAuthorization();
-        _builder.Services.AddSwaggerGen(options =>
+        builder.Services.AddAuthorization();
+        builder.Services.AddSwaggerGen(options =>
         {
             options.EnableAnnotations();
             options.SwaggerDoc(name: name, new OpenApiInfo
@@ -97,19 +99,10 @@ public class HttpServer
                 Title = title,
                 Description = description
             });
-            
-            options.IncludeXmlComments(swaggerFullPath);
+
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xml));
             options.CustomSchemaIds(type => type.ToString());
         });
-    }
-
-    private void AddScopedService(Type serviceType)
-    {
-        var method = typeof(ServiceCollectionServiceExtensions)
-            .GetMethod("AddScoped", 1, new[] { typeof(IServiceCollection) })!
-            .MakeGenericMethod(serviceType);
-
-        method.Invoke(null, new object[] { _builder.Services });
     }
 
     public void AddGetEndPoint(string route, Delegate handler)
@@ -138,15 +131,15 @@ public class HttpServer
     */
     private void AddCORSService()
     {
-        if (_appSettings == null)
+        if (appSettings == null)
         {
             return;
         }
         
         // Add CORS services
-        string webUiUrl = _appSettings.GetSection("WebUI:Url").Value;
+        string webUiUrl = appSettings.GetSection("WebUI:Url").Value;
 
-        _builder.Services.AddCors(options =>
+        builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowSpecificOrigin",
             builder =>
@@ -165,7 +158,7 @@ public class HttpServer
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            options.SwaggerEndpoint($"/swagger/{_serverConfig.swaggerVersion}/swagger.json", _serverConfig.swaggerName);
             options.RoutePrefix = "docs";
         });
 
@@ -193,15 +186,5 @@ public class HttpServer
         });
         app.UseRouting();
     }
-
-    private void UseMiddleware(Type middlewareType)
-    {
-        var method = typeof(IApplicationBuilder)
-            .GetMethod("UseMiddleware", 1, Type.EmptyTypes)!
-            .MakeGenericMethod(middlewareType);
-
-        method.Invoke(app, null);
-    }
-
 
 }
