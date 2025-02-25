@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 
 namespace libJson
@@ -27,6 +26,26 @@ namespace libJson
         }
 
         /// <summary>
+        /// Serializes an object into a JSON string.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to serialize.</typeparam>
+        /// <param name="obj">The object to serialize.</param>
+        /// <param name="options">The JsonSerializerOptions to use.</param>
+        /// <returns>A JSON string representation of the object.</returns>
+        public static string Serialize<T>(T obj, JsonSerializerOptions options)
+        {
+            try
+            {
+                return JsonSerializer.Serialize(obj, options);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException("Serialization failed.", ex);
+            }
+        }
+
+
+        /// <summary>
         /// Deserializes a JSON string into an object of type T.
         /// </summary>
         /// <typeparam name="T">The type of the object to deserialize into.</typeparam>
@@ -37,6 +56,25 @@ namespace libJson
             try
             {
                 return JsonSerializer.Deserialize<T>(json);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException("Deserialization failed.", ex);
+            }
+        }
+        
+        /// <summary>
+        /// Deserializes a JSON string into an object of type T.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to deserialize into.</typeparam>
+        /// <param name="json">The JSON string to deserialize.</param>
+        /// <param name="options">The JsonSerializerOptions to use.</param>
+        /// <returns>An object of type T.</returns>
+        public static T Deserialize<T>(string json, JsonSerializerOptions options)
+        {
+            try
+            {
+                return JsonSerializer.Deserialize<T>(json, options);
             }
             catch (JsonException ex)
             {
@@ -65,6 +103,15 @@ namespace libJson
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Creates a new, empty JsonSerializerOptions object.
+        /// </summary>
+        /// <returns>A new JsonSerializerOptions object.</returns>
+        public static JsonSerializerOptions CreateSerializerOptions()
+        {
+            return new JsonSerializerOptions();
         }
     }
 }
