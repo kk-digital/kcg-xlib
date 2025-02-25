@@ -52,7 +52,7 @@ unsafe partial struct Blake3HashState : IBlakeIncremental
 	private uint _pad;
 	private fixed uint cv[HashWords * 54];
 
-	private static ReadOnlySpan<byte> ivle => [
+	private static ReadOnlySpan<byte> ivle => new Byte[]{
 		0x67, 0xe6, 0x09, 0x6a,
 		0x85, 0xae, 0x67, 0xbb,
 		0x72, 0xf3, 0x6e, 0x3c,
@@ -61,7 +61,7 @@ unsafe partial struct Blake3HashState : IBlakeIncremental
 		0x8c, 0x68, 0x05, 0x9b,
 		0xab, 0xd9, 0x83, 0x1f,
 		0x19, 0xcd, 0xe0, 0x5b
-	];
+	};
 
 #if HWINTRINSICS
 	private static ReadOnlySpan<byte> rormask => [
