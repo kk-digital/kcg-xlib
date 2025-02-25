@@ -44,7 +44,6 @@ namespace libJson
             }
         }
 
-
         /// <summary>
         /// Deserializes a JSON string into an object of type T.
         /// </summary>
@@ -103,15 +102,6 @@ namespace libJson
             {
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Creates a new, empty JsonSerializerOptions object.
-        /// </summary>
-        /// <returns>A new JsonSerializerOptions object.</returns>
-        public static JsonSerializerOptions CreateSerializerOptions()
-        {
-            return new JsonSerializerOptions();
         }
     }
 }
