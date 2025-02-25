@@ -64,7 +64,7 @@ public class Utils
 
         // Combine all at the debug assert message
         string path = filePath.Remove(0, filePath.IndexOf("kcg", StringComparison.OrdinalIgnoreCase));
-        var logMessage = $"{message} {path} at {caller}() line: {lineNumber}";
+        string logMessage = $"{message} {path} at {caller}() line: {lineNumber}";
         if (string.IsNullOrEmpty(logFilter))
             LibLog.LogError(logMessage);
         else
