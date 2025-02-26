@@ -7,10 +7,10 @@ namespace Tests
         [Test]
         public void Test_UuidGeneration()
         {
-            UInt64 Uid = libUid.ShortHash.GenerateUUID();
+            UInt64 Uid = libUid.ShortHash.GenerateUID();
 
             Assert.NotNull(Uid);
-            Assert.GreaterOrEqual(Uid, libUid.ShortHash.MINIMUM_STARTING_UUID);
+            Assert.GreaterOrEqual(Uid, libUid.ShortHash.MINIMUM_STARTING_UID);
         }
     }
 }
