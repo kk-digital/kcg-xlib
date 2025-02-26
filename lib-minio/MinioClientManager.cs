@@ -92,7 +92,7 @@ public class MinioClientManager
 
     //==========================================================================================================================
     /// <summary>
-    /// Retrieves a MinIO client by its UUID.
+    /// Retrieves a MinIO client by its UID.
     /// </summary>
     public MinioClientHandler GetClient(Uid64 id) => _clients.TryGetValue(id, out var client) ? client : null;
 
@@ -119,7 +119,7 @@ public class MinioClientManager
 
     //==========================================================================================================================
     /// <summary>
-    /// Deletes a MinIO client by its UUID.
+    /// Deletes a MinIO client by its UID.
     /// </summary>
     public bool DeleteClient(Uid64 id) => _clients.TryRemove(id, out _);
 
