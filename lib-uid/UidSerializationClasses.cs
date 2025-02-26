@@ -7,7 +7,7 @@ namespace lib;
 // this file contains classes for deserializing/serializing to json, and for reading from/to mongo as well.
 
 // class to serialize to MongoDB
-public class Uuid64BsonSerializer : IBsonSerializer<Uid64>
+public class Uid64BsonSerializer : IBsonSerializer<Uid64>
 {
     public Type ValueType => typeof(Uid64);
 
@@ -40,12 +40,12 @@ public class UidJsonConverter : JsonConverter<Uid64>
 {
     public override Uid64 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        string uuidString = reader.GetString();
-        if (uuidString == null)
+        string uidString = reader.GetString();
+        if (uidString == null)
         {
             throw new JsonException("Uid string is null");
         }
-        return Uid64.FromFormattedString(uuidString);
+        return Uid64.FromFormattedString(uidString);
     }
 
     public override void Write(Utf8JsonWriter writer, Uid64 value, JsonSerializerOptions options)
@@ -54,11 +54,11 @@ public class UidJsonConverter : JsonConverter<Uid64>
     }
 }
 
-public class UuidListJsonConverter : JsonConverter<List<Uid64>>
+public class UidListJsonConverter : JsonConverter<List<Uid64>>
 {
     public override List<Uid64> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        List<Uid64> uuids = new List<Uid64>();
+        List<Uid64> uids = new List<Uid64>();
 
         if (reader.TokenType != JsonTokenType.StartArray)
         {
@@ -72,16 +72,16 @@ public class UuidListJsonConverter : JsonConverter<List<Uid64>>
                 break;
             }
 
-            string uuidString = reader.GetString();
-            if (uuidString == null)
+            string uidString = reader.GetString();
+            if (uidString == null)
             {
                 throw new JsonException("Uid string is null");
             }
 
-            uuids.Add(Uid64.FromFormattedString(uuidString));
+            uids.Add(Uid64.FromFormattedString(uidString));
         }
 
-        return uuids;
+        return uids;
     }
 
     public override void Write(Utf8JsonWriter writer, List<Uid64> value, JsonSerializerOptions options)

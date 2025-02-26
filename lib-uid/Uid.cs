@@ -39,7 +39,7 @@ namespace lib
         {
             var hexString = _value.ToString("X16");
             var formattedString = $"{hexString.Substring(0, 4)}-{hexString.Substring(4, 4)}-{hexString.Substring(8, 4)}-{hexString.Substring(12, 4)}";
-            ValidateUuidString(formattedString);
+            ValidateUidString(formattedString);
 
             return formattedString.ToUpper();
         }
@@ -58,7 +58,7 @@ namespace lib
                 string strValue when strValue.StartsWith("ref") => FromReferencedString(strValue),
                 string strValue => FromFormattedString(strValue),
                 int intValue => FromUInt64((ulong)intValue),
-                Uid64 uuidValue => uuidValue,
+                Uid64 uidValue => uidValue,
                 _ => throw new ArgumentException("Input value not supported"),
             };
         }
@@ -69,7 +69,7 @@ namespace lib
         /// <param name="dateValue">The date value.</param>
         /// <param name="hash">The hash value.</param>
         /// <returns>The created Uid.</returns>
-        public static Uid64 CreateNewUuid(DateTime? dateValue = null, Hash? hash = null)
+        public static Uid64 CreateNewUid(DateTime? dateValue = null, Hash? hash = null)
         {
             dateValue ??= DateTime.UtcNow;
 
@@ -98,7 +98,7 @@ namespace lib
             }
 
             Utils.Assert(false, $"time data '{date}' does not match any of the provided formats");
-            return InvalidUuid();
+            return InvalidUid();
         }
 
         /// <summary>
@@ -108,11 +108,11 @@ namespace lib
         /// <returns>The created Uid.</returns>
         public static Uid64 FromUInt64(ulong value)
         {
-            ValidateUuidIntValue(value);
+            ValidateUidIntValue(value);
             return new Uid64(value);
         }
         
-        public static Uid64 InvalidUuid()
+        public static Uid64 InvalidUid()
         {
             return new Uid64(1);
         }
@@ -125,19 +125,19 @@ namespace lib
         public static Uid64 FromFormattedString(string value)
         {
             value = value.ToUpper();
-            ValidateUuidString(value);
+            ValidateUidString(value);
             return new Uid64(Convert.ToUInt64(value.Replace("-", ""), 16));
         }
 
         /// <summary>
-        /// Compares two UUIDs for equality.
+        /// Compares two UIDs for equality.
         /// </summary>
-        /// <param name="uuid1">The first Uid.</param>
-        /// <param name="uuid2">The second Uid.</param>
-        /// <returns>True if the UUIDs are equal, otherwise false.</returns>
-        public static bool CompareUuids(Uid64 uuid1, Uid64 uuid2)
+        /// <param name="uid1">The first Uid.</param>
+        /// <param name="uid2">The second Uid.</param>
+        /// <returns>True if the UIDs are equal, otherwise false.</returns>
+        public static bool CompareUids(Uid64 uid1, Uid64 uid2)
         {
-            return uuid1._value == uuid2._value;
+            return uid1._value == uid2._value;
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace lib
         /// <returns>The 64-bit value.</returns>
         public ulong ToUInt64()
         {
-            ValidateUuidIntValue(_value);
+            ValidateUidIntValue(_value);
             return _value;
         }
 
@@ -204,29 +204,29 @@ namespace lib
         /// <summary>
         /// Validates the Uid string format.
         /// </summary>
-        /// <param name="uuidString">The Uid string.</param>
+        /// <param name="uidString">The Uid string.</param>
         /// <exception cref="ArgumentException">Thrown when the string format is invalid or the date is in the future.</exception>
-        private static void ValidateUuidString(string uuidString)
+        private static void ValidateUidString(string uidString)
         {
             var validationRegex = new Regex(@"^[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}$");
 
-            Utils.Assert(validationRegex.IsMatch(uuidString), "Invalid Uid string");
+            Utils.Assert(validationRegex.IsMatch(uidString), "Invalid Uid string");
 
-            var uuidPosixDate = Convert.ToUInt32(uuidString.Replace("-", "").Substring(0, 8), 16);
-            ValidateDateNotInTheFuture(uuidPosixDate);
+            var uidPosixDate = Convert.ToUInt32(uidString.Replace("-", "").Substring(0, 8), 16);
+            ValidateDateNotInTheFuture(uidPosixDate);
         }
 
         /// <summary>
         /// Validates the Uid integer value.
         /// </summary>
-        /// <param name="uuidInt">The Uid integer value.</param>
+        /// <param name="uidInt">The Uid integer value.</param>
         /// <exception cref="ArgumentException">Thrown when the value is not valid or the date is in the future.</exception>
-        private static void ValidateUuidIntValue(ulong uuidInt)
+        private static void ValidateUidIntValue(ulong uidInt)
         {
-            Utils.Assert((uuidInt >= 0 && uuidInt <= 18446744073709551615), "The value is not a valid Uid");
+            Utils.Assert((uidInt >= 0 && uidInt <= 18446744073709551615), "The value is not a valid Uid");
 
-            var uuidPosixDate = (uint)(uuidInt >> 32);
-            ValidateDateNotInTheFuture(uuidPosixDate);
+            var uidPosixDate = (uint)(uidInt >> 32);
+            ValidateDateNotInTheFuture(uidPosixDate);
         }
 
         /// <summary>
