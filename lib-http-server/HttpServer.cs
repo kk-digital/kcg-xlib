@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
-
+using Microsoft.AspNetCore.Hosting;
 
 namespace UtilityHttpServer;
 
@@ -26,7 +26,7 @@ public class HttpServer
     public WebApplicationBuilder builder;
     public WebApplication app;
     public IConfigurationRoot appSettings;
-    private int _connectionCounter = 0;  
+    private int _connectionCounter = 0;
     private int _maxConnections = 0;
     private HttpServerConfiguration _serverConfig;
 
@@ -44,13 +44,16 @@ public class HttpServer
 
         AddCORSService();
         _maxConnections = serverConfig.maxConnections;
-
     }
 
     public void BuildApp()
     {
         if (app == null)
         {
+            // Configure server to listen on the specified URL
+            string serverUrl = appSettings.GetSection("Orchestration:Url")?.Value ?? throw new InvalidOperationException("Server URL is not configured.");
+            builder.WebHost.UseUrls(serverUrl);
+
             app = builder.Build();
             DefaultAppSetup(_maxConnections);
         }
@@ -77,12 +80,12 @@ public class HttpServer
     }
 
 
-    private void SetSwaggerGen(string name, 
-                               string version, 
-                               string title, 
-                               string description, 
+    private void SetSwaggerGen(string name,
+                               string version,
+                               string title,
+                               string description,
                                string xml)
-    { 
+    {
         builder.Services.AddHttpContextAccessor(); // Register IHttpContextAccessor
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -109,17 +112,17 @@ public class HttpServer
     {
         app.MapGet(route, handler);
     }
-    
+
     public void AddPostEndPoint(string route, Delegate handler)
     {
         app.MapPost(route, handler);
     }
-    
+
     public void AddPutEndPoint(string route, Delegate handler)
     {
         app.MapPut(route, handler);
     }
-    
+
     public void AddDeleteEndPoint(string route, Delegate handler)
     {
         app.MapDelete(route, handler);
@@ -135,7 +138,7 @@ public class HttpServer
         {
             return;
         }
-        
+
         // Add CORS services
         string webUiUrl = appSettings.GetSection("WebUI:Url").Value;
 
