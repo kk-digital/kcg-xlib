@@ -169,19 +169,14 @@ namespace LogUtility
             WriteLog(msg + " " + timeString, ProfileColor);
         }
 
+        #region auto
         public static void LogDebug(string message, 
             [CallerMemberName] string callerName = "", 
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
             AddLogEntry(DebugLogs, "Default", message, LogLevel.Debug, project, ns, className, callerName, fileName, callerLineNumber);
-        }
-        
-        public static void LogDebugWithFilter(string filter, string message, string project = null, string ns = null, 
-            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
-        {
-            AddLogEntry(DebugLogs, filter, message, LogLevel.Debug, project, ns, className, methodName, filePath, lineNumber);
         }
 
         public static void LogInfo(string message, 
@@ -189,14 +184,8 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
             AddLogEntry(InfoLogs, "Default", message, LogLevel.Info, project, ns, className, callerName, fileName, callerLineNumber);
-        }
-        
-        public static void LogInfoWithFilter(string filter, string message, string project = null, string ns = null, 
-            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
-        {
-            AddLogEntry(InfoLogs, filter, message, LogLevel.Info, project, ns, className, methodName, filePath, lineNumber);
         }
 
         public static void LogWarning(string message, 
@@ -204,14 +193,8 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
             AddLogEntry(WarningLogs, "Default", message, LogLevel.Warning, project, ns, className, callerName, fileName, callerLineNumber);
-        }
-        
-        public static void LogWarningWithFilter(string filter, string message, string project = null, string ns = null, 
-            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
-        {
-            AddLogEntry(WarningLogs, filter, message, LogLevel.Warning, project, ns, className, methodName, filePath, lineNumber);
         }
 
         public static void LogError(string message, 
@@ -219,66 +202,98 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
             AddLogEntry(ErrorLogs, "Default", message, LogLevel.Error, project, ns, className, callerName, fileName, callerLineNumber);
         }
-        
-        public static void LogErrorWithFilter(string filter, string message, string project = null, string ns = null, 
-            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
-        {
-            AddLogEntry(ErrorLogs, filter, message, LogLevel.Error, project, ns, className, methodName, filePath, lineNumber);
-        }
-
-
 
         public static void LogFatal(string message, 
             [CallerMemberName] string callerName = "", 
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
             AddLogEntry(FatalLogs, "Default", message, LogLevel.Fatal, project, ns, className, callerName, fileName, callerLineNumber);
         }
+        #endregion
+
+        #region auto with filter
+        public static void LogDebugWithFilter(string filter, string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(DebugLogs, filter, message, LogLevel.Debug, project, ns, className, callerName, fileName, callerLineNumber);
+        }
         
-        public static void LogFatalWithFilter(string filter, string message, string project = null, string ns = null, 
-            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
+        public static void LogInfoWithFilter(string filter, string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(InfoLogs, filter, message, LogLevel.Info, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        
+        public static void LogWarningWithFilter(string filter, string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(WarningLogs, filter, message, LogLevel.Warning, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        
+        public static void LogErrorWithFilter(string filter, string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(ErrorLogs, filter, message, LogLevel.Error, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        
+        public static void LogFatalWithFilter(string filter, string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(FatalLogs, filter, message, LogLevel.Fatal, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        #endregion
+        
+        #region manual
+        public static void LogDebugManual(string filter, string message, string project, string ns, 
+            string className, string methodName, string filePath, int lineNumber)
+        {
+            AddLogEntry(DebugLogs, filter, message, LogLevel.Debug, project, ns, className, methodName, filePath, lineNumber);
+        }
+        
+        public static void LogInfoManual(string filter, string message, string project, string ns, 
+            string className, string methodName, string filePath, int lineNumber)
+        {
+            AddLogEntry(InfoLogs, filter, message, LogLevel.Info, project, ns, className, methodName, filePath, lineNumber);
+        }
+        
+        public static void LogWarningManual(string filter, string message, string project, string ns, 
+            string className, string methodName, string filePath, int lineNumber)
+        {
+            AddLogEntry(WarningLogs, filter, message, LogLevel.Warning, project, ns, className, methodName, filePath, lineNumber);
+        }
+        
+        public static void LogErrorManual(string filter, string message, string project, string ns, 
+            string className, string methodName, string filePath, int lineNumber)
+        {
+            AddLogEntry(ErrorLogs, filter, message, LogLevel.Error, project, ns, className, methodName, filePath, lineNumber);
+        }
+        
+        public static void LogFatalManual(string filter, string message, string project, string ns, 
+            string className, string methodName, string filePath, int lineNumber)
         {
             AddLogEntry(FatalLogs, filter, message, LogLevel.Fatal, project, ns, className, methodName, filePath, lineNumber);
         }
+        #endregion
 
-
-        // old method restructed here.
-        /**
-        public static void LogDetailedDebug(string msg, 
-            [CallerMemberName] string callerName = "", 
-            [CallerFilePath] string callerFilePath = "", 
-            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            LogDebug(msg, callerName, Path.GetFileName(callerFilePath), callerLineNumber);
-        }
-
-        public static void LogDetailedWarning(
-            string msg, 
-            [CallerMemberName] string callerName = "", 
-            [CallerFilePath] string callerFilePath = "", 
-            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            LogWarning(msg, callerName, Path.GetFileName(callerFilePath), callerLineNumber);
-        }
-
-        public static void LogDetailedError(
-            string msg, 
-            [CallerMemberName] string callerName = "", 
-            [CallerFilePath] string callerFilePath = "", 
-            [CallerLineNumber] int callerLineNumber = 0)
-        {
-            LogError(msg, callerName, Path.GetFileName(callerFilePath), callerLineNumber);
-        }
-
-        public static List<string> ListDebugLogs(string filter, DateTime startDate, DateTime endDate)
-        {
-            return new List<string>();
-        }
-        */
     }
 }
