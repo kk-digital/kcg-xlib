@@ -1,12 +1,29 @@
 namespace LogUtility
 {
-    // This class is used to represent a log entry with a message and the time it was logged.
+    // log level
+    public enum LogLevel
+    {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Fatal
+    }
+
+    // log entry
     public class LibLogEntry
     {
-        // Stores the information or message of the log entry.
         public string Message;
 
-        // Keeps track of the date and time the log entry was created.
         public DateTime LoggedAt;
+
+        public LogLevel Level;
+
+        public string Project;
+        public string Namespace;
+        public string ClassName;
+        public string MethodName;
+        public string FilePath;
+        public int LineNumber;
     }
 }
