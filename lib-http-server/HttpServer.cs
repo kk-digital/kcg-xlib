@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Hosting;
+using assert;
+using System.Net;
+using System.Net.Sockets;
 
 namespace UtilityHttpServer;
 
@@ -46,12 +49,48 @@ public class HttpServer
         _maxConnections = serverConfig.maxConnections;
     }
 
+    public static bool IsAddressInUse(string url)
+    {
+        try
+        {
+            // Parse the URL to extract host and port
+            var uri = new Uri(url);
+            int port = uri.Port;
+
+            // If port is not specified in URL, use default HTTP/HTTPS ports
+            if (port == -1)
+            {
+                port = uri.Scheme.ToLower() == "https" ? 443 : 80;
+            }
+
+            // Try to create a TCP listener on the port
+            var listener = new TcpListener(IPAddress.Any, port);
+            try
+            {
+                listener.Start();
+                listener.Stop();
+                return false; // Port is available
+            }
+            finally
+            {
+                listener.Server.Close();
+            }
+        }
+        catch (SocketException)
+        {
+            return true; // Port is in use
+        }
+    }
+
     public void BuildApp()
     {
         if (app == null)
         {
             // Configure server to listen on the specified URL
             string serverUrl = appSettings.GetSection("Orchestration:Url")?.Value ?? throw new InvalidOperationException("Server URL is not configured.");
+
+            Utils.Assert(!IsAddressInUse(serverUrl), $"Server URL {serverUrl} is already in use.");
+
             builder.WebHost.UseUrls(serverUrl);
 
             app = builder.Build();
