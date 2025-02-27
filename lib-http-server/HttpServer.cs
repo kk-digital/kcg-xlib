@@ -4,7 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
-
+using Microsoft.AspNetCore.Hosting;
+using assert;
+using System.Net;
+using System.Net.Sockets;
 
 namespace UtilityHttpServer;
 
@@ -26,7 +29,7 @@ public class HttpServer
     public WebApplicationBuilder builder;
     public WebApplication app;
     public IConfigurationRoot appSettings;
-    private int _connectionCounter = 0;  
+    private int _connectionCounter = 0;
     private int _maxConnections = 0;
     private HttpServerConfiguration _serverConfig;
 
@@ -44,13 +47,52 @@ public class HttpServer
 
         AddCORSService();
         _maxConnections = serverConfig.maxConnections;
+    }
 
+    public static bool IsAddressInUse(string url)
+    {
+        try
+        {
+            // Parse the URL to extract host and port
+            var uri = new Uri(url);
+            int port = uri.Port;
+
+            // If port is not specified in URL, use default HTTP/HTTPS ports
+            if (port == -1)
+            {
+                port = uri.Scheme.ToLower() == "https" ? 443 : 80;
+            }
+
+            // Try to create a TCP listener on the port
+            var listener = new TcpListener(IPAddress.Any, port);
+            try
+            {
+                listener.Start();
+                listener.Stop();
+                return false; // Port is available
+            }
+            finally
+            {
+                listener.Server.Close();
+            }
+        }
+        catch (SocketException)
+        {
+            return true; // Port is in use
+        }
     }
 
     public void BuildApp()
     {
         if (app == null)
         {
+            // Configure server to listen on the specified URL
+            string serverUrl = appSettings.GetSection("Orchestration:Url")?.Value ?? throw new InvalidOperationException("Server URL is not configured.");
+
+            Utils.Assert(!IsAddressInUse(serverUrl), $"Server URL {serverUrl} is already in use.");
+
+            builder.WebHost.UseUrls(serverUrl);
+
             app = builder.Build();
             DefaultAppSetup(_maxConnections);
         }
@@ -77,12 +119,12 @@ public class HttpServer
     }
 
 
-    private void SetSwaggerGen(string name, 
-                               string version, 
-                               string title, 
-                               string description, 
+    private void SetSwaggerGen(string name,
+                               string version,
+                               string title,
+                               string description,
                                string xml)
-    { 
+    {
         builder.Services.AddHttpContextAccessor(); // Register IHttpContextAccessor
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -109,17 +151,17 @@ public class HttpServer
     {
         app.MapGet(route, handler);
     }
-    
+
     public void AddPostEndPoint(string route, Delegate handler)
     {
         app.MapPost(route, handler);
     }
-    
+
     public void AddPutEndPoint(string route, Delegate handler)
     {
         app.MapPut(route, handler);
     }
-    
+
     public void AddDeleteEndPoint(string route, Delegate handler)
     {
         app.MapDelete(route, handler);
@@ -135,7 +177,7 @@ public class HttpServer
         {
             return;
         }
-        
+
         // Add CORS services
         string webUiUrl = appSettings.GetSection("WebUI:Url").Value;
 
