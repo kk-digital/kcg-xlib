@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 #if GODOT_BUILD
 using Godot;
 #endif
@@ -8,85 +9,261 @@ namespace LogUtility
 {
     public static class LibLog
     {
-        // Todo: Divide instrumantation and logging into channels
-        
-        private static int _verbosity = 0;
-        private static char[] _profileBuffer = new char[8192];
-        private static int _profileBufferIndex = 0;
-        private static char[] _debugBuffer = new char[8192];
-        private static int _debugBufferIndex = 0;
-        private static char[] _wardingBuffer = new char[8192];
-        private static int _warningBufferIndex = 0;
-        private static char[] _errorBuffer = new char[8192];
-        private static int _errorBufferIndex = 0;
-        
         
         private static object _lock = new object();
         
-        // Maps (filter) => (list of logs)
+        // log saver
         public static Dictionary<string, List<LibLogEntry>> DebugLogs = new();
-        // Maps (filter) => (list of logs)
+        public static Dictionary<string, List<LibLogEntry>> InfoLogs = new();
         public static Dictionary<string, List<LibLogEntry>> WarningLogs = new();
-        // Maps (filter) => (list of logs)
         public static Dictionary<string, List<LibLogEntry>> ErrorLogs = new();
+        public static Dictionary<string, List<LibLogEntry>> FatalLogs = new();
+
+        // log color
+        private static readonly ConsoleColor DebugColor = ConsoleColor.White;
+        private static readonly ConsoleColor InfoColor = ConsoleColor.Cyan;
+        private static readonly ConsoleColor WarningColor = ConsoleColor.Yellow;
+        private static readonly ConsoleColor ErrorColor = ConsoleColor.Red;
+        private static readonly ConsoleColor FatalColor = ConsoleColor.DarkRed;
+        private static readonly ConsoleColor ProfileColor = ConsoleColor.Green;
+
+        private static void WriteLog(string message, ConsoleColor color)
+        {
+#if GODOT_BUILD
+            switch (color)
+            {
+                case ConsoleColor.Yellow:
+                    GD.PushWarning(message);
+                    break;
+                case ConsoleColor.Red:
+                case ConsoleColor.DarkRed:
+                    GD.PushError(message);
+                    break;
+                default:
+                    GD.Print(message);
+                    break;
+            }
+#else
+            Console.ForegroundColor = color;
+            Console.WriteLine(message);
+            Console.ForegroundColor = ConsoleColor.White;
+#endif
+        }
+
+        private static void AddLogEntry(Dictionary<string, List<LibLogEntry>> logDictionary, 
+            string filter, string message, LogLevel level, 
+            string project = null, string ns = null, string className = null, 
+            string methodName = null, string filePath = null, int lineNumber = 0)
+        {
+            lock (_lock)
+            {
+                if (!logDictionary.ContainsKey(filter))
+                {
+                    logDictionary.Add(filter, new List<LibLogEntry>());
+                }
+
+                List<LibLogEntry> logsList = logDictionary[filter];
+                DateTime currentTime = DateTime.UtcNow;
+
+                LibLogEntry logEntry = new LibLogEntry
+                {
+                    Message = message,
+                    LoggedAt = currentTime,
+                    Level = level,
+                    Project = project,
+                    Namespace = ns,
+                    ClassName = className,
+                    MethodName = methodName,
+                    FilePath = filePath,
+                    LineNumber = lineNumber
+                };
+
+                logsList.Add(logEntry);
+                
+                ConsoleColor color = level switch
+                {
+                    LogLevel.Debug => DebugColor,
+                    LogLevel.Info => InfoColor,
+                    LogLevel.Warning => WarningColor,
+                    LogLevel.Error => ErrorColor,
+                    LogLevel.Fatal => FatalColor,
+                    _ => DebugColor
+                };
+                
+                string levelName = Enum.GetName(typeof(LogLevel), level);
+                string projectInfo = string.IsNullOrEmpty(project) ? "" : $"{project}";
+                string fileInfo = string.IsNullOrEmpty(filePath) ? "" : $"{filePath}:{lineNumber}";
+                string classMethodInfo = string.IsNullOrEmpty(className) ? "" : $" - {className}.{methodName}";
+                
+                string logMessage = $"[{levelName}] {currentTime}: [{filter}] {message}, [{projectInfo}|{fileInfo}|{classMethodInfo}]";
+                WriteLog(logMessage, color);
+            }
+        }
+
+        // info helper
+        private static (string project,string fileName, string ns, string className) GetCallerInfo(string callerFilePath, string callerMemberName)
+        {
+            try
+            {
+                // get file name
+                string fileName = Path.GetFileName(callerFilePath);
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    fileName = "Unknown";
+                }
+                // get project name (.csproj file name)
+                string projectName = "Unknown";
+                if (!string.IsNullOrEmpty(callerFilePath))
+                {
+                    string directory = Path.GetDirectoryName(callerFilePath);
+                    string[] csprojFiles = Directory.GetFiles(directory, "*.csproj", SearchOption.AllDirectories);
+                    if (csprojFiles.Length > 0)
+                    {
+                        projectName = Path.GetFileNameWithoutExtension(csprojFiles[0]);
+                    }
+                    else
+                    {
+                        // if no csproj file found, use the directory name
+                        projectName = new DirectoryInfo(directory).Name;
+                    }
+                }
+
+                // get namespace and class name
+                string className = "Unknown";
+                string ns = "Unknown";
+                StackTrace stackTrace = new StackTrace(2, false);
+                if (stackTrace.FrameCount > 0)
+                {
+                    StackFrame frame = stackTrace.GetFrame(0);
+                    MethodBase method = frame?.GetMethod();
+                    if (method != null)
+                    {
+                        Type declaringType = method.DeclaringType;
+                        if (declaringType != null)
+                        {
+                            className = declaringType.Name;
+                            ns = declaringType.Namespace ?? "Unknown";
+                        }
+                    }
+                }
+
+                return (projectName,fileName, ns, className);
+            }
+            catch
+            {
+                return ("Unknown", "Unknown", "Unknown", "Unknown");
+            }
+        }
+
 
         public static void LogDetailedProfile(string msg, Stopwatch time, [CallerMemberName] string callerName = "", [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
         {
             string timeString = time.ElapsedMilliseconds + "ms";
             string logMessage = $"[PROFILE]: {msg}, {timeString}, Time: {DateTime.Now}, File: {callerFilePath}: {callerLineNumber} - {callerName}";
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(logMessage);
-            Console.ForegroundColor = ConsoleColor.White;
+            WriteLog(logMessage, ProfileColor);
         }
         
         public static void LogProfile(string msg, Stopwatch time)
         {
             string timeString = time.ElapsedMilliseconds + "ms";
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(msg + " " + timeString);
-            Console.ForegroundColor = ConsoleColor.White;
+            WriteLog(msg + " " + timeString, ProfileColor);
+        }
 
+        public static void LogDebug(string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(DebugLogs, "Default", message, LogLevel.Debug, project, ns, className, callerName, fileName, callerLineNumber);
         }
         
+        public static void LogDebugWithFilter(string filter, string message, string project = null, string ns = null, 
+            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
+        {
+            AddLogEntry(DebugLogs, filter, message, LogLevel.Debug, project, ns, className, methodName, filePath, lineNumber);
+        }
+
+        public static void LogInfo(string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(InfoLogs, "Default", message, LogLevel.Info, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        
+        public static void LogInfoWithFilter(string filter, string message, string project = null, string ns = null, 
+            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
+        {
+            AddLogEntry(InfoLogs, filter, message, LogLevel.Info, project, ns, className, methodName, filePath, lineNumber);
+        }
+
+        public static void LogWarning(string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(WarningLogs, "Default", message, LogLevel.Warning, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        
+        public static void LogWarningWithFilter(string filter, string message, string project = null, string ns = null, 
+            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
+        {
+            AddLogEntry(WarningLogs, filter, message, LogLevel.Warning, project, ns, className, methodName, filePath, lineNumber);
+        }
+
+        public static void LogError(string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(ErrorLogs, "Default", message, LogLevel.Error, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        
+        public static void LogErrorWithFilter(string filter, string message, string project = null, string ns = null, 
+            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
+        {
+            AddLogEntry(ErrorLogs, filter, message, LogLevel.Error, project, ns, className, methodName, filePath, lineNumber);
+        }
+
+
+
+        public static void LogFatal(string message, 
+            [CallerMemberName] string callerName = "", 
+            [CallerFilePath] string callerFilePath = "", 
+            [CallerLineNumber] int callerLineNumber = 0)
+        {
+            var (project,fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
+            AddLogEntry(FatalLogs, "Default", message, LogLevel.Fatal, project, ns, className, callerName, fileName, callerLineNumber);
+        }
+        
+        public static void LogFatalWithFilter(string filter, string message, string project = null, string ns = null, 
+            string className = null, string methodName = null, string filePath = null, int lineNumber = 0)
+        {
+            AddLogEntry(FatalLogs, filter, message, LogLevel.Fatal, project, ns, className, methodName, filePath, lineNumber);
+        }
+
+
+        // old method restructed here.
+        /**
         public static void LogDetailedDebug(string msg, 
             [CallerMemberName] string callerName = "", 
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            string logMessage = $"[DEBUG]: {msg}, Time: {DateTime.Now}, File: {callerFilePath}: {callerLineNumber} - {callerName}";
-            LogDebug(logMessage);
+            LogDebug(msg, callerName, Path.GetFileName(callerFilePath), callerLineNumber);
         }
-    
-        
-        public static void LogDebug(string msg)
-        {
-#if GODOT_BUILD
-            GD.Print(msg);
-#else
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(msg);
-#endif
-        }
-        
+
         public static void LogDetailedWarning(
             string msg, 
             [CallerMemberName] string callerName = "", 
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            string logMessage = $"[WARNING]: {msg}, Time: {DateTime.Now}, File: {callerFilePath}: {callerLineNumber} - {callerName}";
-            LogWarning(logMessage);
-        }
-        
-        public static void LogWarning(string msg)
-        {
-#if GODOT_BUILD
-            GD.PushWarning(msg);
-#else
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(msg);
-            Console.ForegroundColor = ConsoleColor.White;
-#endif
+            LogWarning(msg, callerName, Path.GetFileName(callerFilePath), callerLineNumber);
         }
 
         public static void LogDetailedError(
@@ -95,107 +272,13 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
-            string logMessage = $"[ERROR]: {msg}, Time: {DateTime.Now}, File: {callerFilePath}: {callerLineNumber} - {callerName}";
-            LogError(logMessage);
-        }
-
-        public static void LogError(string msg)
-        {
-#if GODOT_BUILD
-            GD.PushError(msg);
-#else
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(msg);
-            Console.ForegroundColor = ConsoleColor.White;
-#endif
-        }   
-        
-        // Adding a new debug log entry with the provided filter and message
-        public static void LogDebug(string filter, string msg)
-        {
-            lock (_lock)
-            {
-                // Check whether the filter exists in the dictionary
-                if (!DebugLogs.ContainsKey(filter))
-                {
-                    // If the filter does not exist, create it
-                    DebugLogs.Add(filter, new List<LibLogEntry>());
-                }
-
-                List<LibLogEntry> logsList = DebugLogs[filter];
-
-                DateTime currentTime = DateTime.UtcNow;
-
-                LibLogEntry logEntry = new LibLogEntry
-                {
-                    Message = msg,
-                    LoggedAt = currentTime
-                };
-
-                logsList.Add(logEntry);
-
-                string logMessage = $"Debug-{currentTime}: [{filter}]{msg}";
-                LogDebug(logMessage);
-            }
-        }
-
-        public static void LogWarning(string filter, string msg)
-        {
-            lock (_lock)
-            {
-                if (!WarningLogs.ContainsKey(filter))
-                {
-                    // If the filter does not exist, create it
-                    WarningLogs.Add(filter, new List<LibLogEntry>());
-                }
-
-                List<LibLogEntry> logsList = WarningLogs[filter];
-
-                DateTime currentTime = DateTime.UtcNow;
-
-                LibLogEntry logEntry = new LibLogEntry
-                {
-                    Message = msg,
-                    LoggedAt = currentTime
-                };
-
-                logsList.Add(logEntry);
-
-                string logMessage = $"Warning-{currentTime}: [{filter}]{msg}";
-                LogWarning(logMessage);
-            }
-        }
-
-        public static void LogError(string filter, string msg)
-        {
-            lock (_lock)
-            {
-                if (!ErrorLogs.ContainsKey(filter))
-                {
-                    // If the filter does not exist, create it
-                    ErrorLogs.Add(filter, new List<LibLogEntry>());
-                }
-
-                List<LibLogEntry> logsList = ErrorLogs[filter];
-
-                DateTime currentTime = DateTime.UtcNow;
-
-                LibLogEntry logEntry = new LibLogEntry
-                {
-                    Message = msg,
-                    LoggedAt = currentTime
-                };
-
-                logsList.Add(logEntry);
-
-                string logMessage = $"Error-{currentTime}: [{filter}] {msg}";
-                LogError(logMessage);
-            }
+            LogError(msg, callerName, Path.GetFileName(callerFilePath), callerLineNumber);
         }
 
         public static List<string> ListDebugLogs(string filter, DateTime startDate, DateTime endDate)
         {
             return new List<string>();
         }
+        */
     }
 }
