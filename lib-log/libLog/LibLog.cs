@@ -150,6 +150,11 @@ namespace LogUtility
             WriteLog(msg + " " + timeString, ProfileColor);
         }
 
+        public static void LogRaw(string message)
+        {
+            WriteLog(message, DebugColor);
+        }
+        
         #region auto
         public static void LogDebug(string message, 
             [CallerMemberName] string callerName = "", 
