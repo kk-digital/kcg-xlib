@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Reflection;
-#if GODOT_BUILD
-using Godot;
-#endif
 
 namespace LogUtility
 {
@@ -29,25 +26,9 @@ namespace LogUtility
 
         private static void WriteLog(string message, ConsoleColor color)
         {
-#if GODOT_BUILD
-            switch (color)
-            {
-                case ConsoleColor.Yellow:
-                    GD.PushWarning(message);
-                    break;
-                case ConsoleColor.Red:
-                case ConsoleColor.DarkRed:
-                    GD.PushError(message);
-                    break;
-                default:
-                    GD.Print(message);
-                    break;
-            }
-#else
             Console.ForegroundColor = color;
             Console.WriteLine(message);
             Console.ForegroundColor = ConsoleColor.White;
-#endif
         }
 
         private static void AddLogEntry(Dictionary<string, List<LibLogEntry>> logDictionary, 
