@@ -146,6 +146,14 @@ public static class PathUtils
         return Path.Combine(path1, path2).Replace('\\', '/');
     }
 
+    public static string GetFileExtension(string path)
+    {
+        ValidatePath(path);
+        
+        string extension = Path.GetExtension(path);
+
+        return extension;
+    }
     public static string Join(string path1, string path2)
     {
         ValidatePath(path1);
