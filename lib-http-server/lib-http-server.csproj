@@ -5,6 +5,7 @@
     <RootNamespace>lib_http_server</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <OutputPath>build/</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
