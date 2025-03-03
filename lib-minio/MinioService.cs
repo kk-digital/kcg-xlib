@@ -13,19 +13,9 @@ public class MinioService
     private readonly string _bucketName;
     //==========================================================================================================================
     // constructor
-    public MinioService(string bucketName, string endpoint)
+    public MinioService(string bucketName, string endpoint, string accessKey, string secretKey)
     {
         _bucketName = bucketName;
-
-        // Retrieve environment variables (will fall back to default values if not set)
-        string accessKey = Environment.GetEnvironmentVariable("MINIO_ROOT_USER");
-        string secretKey = Environment.GetEnvironmentVariable("MINIO_ROOT_PASSWORD");
-
-        if (string.IsNullOrEmpty(accessKey))
-            accessKey = "root";
-
-        if (string.IsNullOrEmpty(secretKey))
-            secretKey = "testings";
 
         _minioClient = new();
         _minioClient.WithEndpoint(endpoint);
