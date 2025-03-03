@@ -7,6 +7,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>preview</LangVersion>
         <DefineConstants>BLAKE_PUBLIC</DefineConstants>
+        <OutputPath>build/</OutputPath>
     </PropertyGroup>
 
 </Project>
