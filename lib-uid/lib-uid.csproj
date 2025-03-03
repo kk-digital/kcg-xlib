@@ -4,6 +4,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <OutputPath>build/</OutputPath>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="MongoDB.Bson" Version="3.2.1" />
