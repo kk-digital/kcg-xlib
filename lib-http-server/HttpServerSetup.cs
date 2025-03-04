@@ -34,7 +34,7 @@ namespace UtilityHttpServer
 
             builder = WebApplication.CreateBuilder(args);
             appSettings = CreateConfig(configPath, configName);
-      
+
             SetLogging();
             SetSwaggerGen(swaggerName,
                           swaggerVersion,
@@ -91,7 +91,7 @@ namespace UtilityHttpServer
                 return true; // Port is in use
             }
         }
-        
+
         private IConfigurationRoot CreateConfig(string configPath, string configName)
         {
             string configBasePath = Path.Combine(builder.Environment.ContentRootPath, configPath);
@@ -152,21 +152,21 @@ namespace UtilityHttpServer
             }
 
             // Add CORS services
-            string webUiUrl = appSettings.GetSection("WebUI:Url").Value;
+            string corsUrl = appSettings.GetSection("CORS:Url")?.Value ?? string.Empty;
 
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
                 builder =>
                 {
-                    builder.WithOrigins(webUiUrl)
+                    builder.WithOrigins(corsUrl)
                     .AllowAnyMethod()
                     .AllowAnyHeader();
                 });
             });
         }
 
-        private void DefaultAppSetup(WebApplication app,  int maxConnections)
+        private void DefaultAppSetup(WebApplication app, int maxConnections)
         {
             // Enable CORS
             app.UseCors("AllowSpecificOrigin");
@@ -206,7 +206,7 @@ namespace UtilityHttpServer
                 }
             });
             app.UseRouting();
-        }   
+        }
 
     }
 
