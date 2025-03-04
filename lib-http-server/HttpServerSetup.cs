@@ -27,7 +27,9 @@ namespace UtilityHttpServer
                                string swaggerVersion,
                                string swaggerTitle,
                                string swaggerDescription,
-                               string swaggerXml)
+                               string swaggerXml,
+                               bool useRazorViews = false
+                               )
         {
             _swaggerName = swaggerName;
             _swaggerVersion = swaggerVersion;
@@ -41,6 +43,13 @@ namespace UtilityHttpServer
                           swaggerTitle,
                           swaggerDescription,
                           swaggerXml);
+
+            if (useRazorViews)
+            {
+                // Add MVC services
+                builder.Services.AddRazorPages();
+                builder.Services.AddControllersWithViews();
+            }
 
             AddCORSService();
 
@@ -176,6 +185,12 @@ namespace UtilityHttpServer
                 options.SwaggerEndpoint($"/swagger/{_swaggerVersion}/swagger.json", _swaggerName);
                 options.RoutePrefix = "docs";
             });
+
+            // Add support for static files and enable routing for MVC
+            app.UseStaticFiles();
+            app.UseRouting();
+            app.MapControllers();
+            app.MapRazorPages();
 
             // Enable Buffering for request body payload
             app.Use(async (context, next) =>
