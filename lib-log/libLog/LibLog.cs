@@ -73,11 +73,12 @@ namespace LogUtility
                 
                 string levelName = Enum.GetName(typeof(LogLevel), level);
                 string projectInfo = string.IsNullOrEmpty(project) ? "" : $"{project}";
-                string fileInfo = string.IsNullOrEmpty(filePath) ? "" : $"{filePath}:{lineNumber}";
+                string fileInfo = string.IsNullOrEmpty(filePath) ? "" : $"file:///{filePath} {lineNumber}";
                 string classMethodInfo = string.IsNullOrEmpty(className) ? "" : $" - {className}.{methodName}";
-                
-                string logMessage = $"[{levelName}] {currentTime}: [{filter}] {message}, [{projectInfo}|{fileInfo}|{classMethodInfo}]";
+
+                string logMessage = $"[{levelName}] {currentTime}: [{filter}] {message}, [{projectInfo} | {fileInfo} | {classMethodInfo}]";
                 WriteLog(logMessage, color);
+
             }
         }
 
@@ -161,8 +162,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(DebugLogs, "Default", message, LogLevel.Debug, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(DebugLogs, "Default", message, LogLevel.Debug, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
 
         public static void LogInfo(string message, 
@@ -170,8 +172,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(InfoLogs, "Default", message, LogLevel.Info, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(InfoLogs, "Default", message, LogLevel.Info, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
 
         public static void LogWarning(string message, 
@@ -179,8 +182,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(WarningLogs, "Default", message, LogLevel.Warning, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(WarningLogs, "Default", message, LogLevel.Warning, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
 
         public static void LogError(string message, 
@@ -188,8 +192,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(ErrorLogs, "Default", message, LogLevel.Error, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(ErrorLogs, "Default", message, LogLevel.Error, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
 
         public static void LogFatal(string message, 
@@ -197,8 +202,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(FatalLogs, "Default", message, LogLevel.Fatal, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(FatalLogs, "Default", message, LogLevel.Fatal, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
         #endregion
 
@@ -208,8 +214,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(DebugLogs, filter, message, LogLevel.Debug, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(DebugLogs, filter, message, LogLevel.Debug, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
         
         public static void LogInfoWithFilter(string filter, string message, 
@@ -217,8 +224,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(InfoLogs, filter, message, LogLevel.Info, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(InfoLogs, filter, message, LogLevel.Info, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
         
         public static void LogWarningWithFilter(string filter, string message, 
@@ -226,8 +234,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(WarningLogs, filter, message, LogLevel.Warning, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(WarningLogs, filter, message, LogLevel.Warning, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
         
         public static void LogErrorWithFilter(string filter, string message, 
@@ -235,8 +244,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(ErrorLogs, filter, message, LogLevel.Error, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(ErrorLogs, filter, message, LogLevel.Error, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
         
         public static void LogFatalWithFilter(string filter, string message, 
@@ -244,8 +254,9 @@ namespace LogUtility
             [CallerFilePath] string callerFilePath = "", 
             [CallerLineNumber] int callerLineNumber = 0)
         {
+            callerFilePath = callerFilePath.Replace("\\", "/");
             var (project, fileName, ns, className) = GetCallerInfo(callerFilePath, callerName);
-            AddLogEntry(FatalLogs, filter, message, LogLevel.Fatal, project, ns, className, callerName, fileName, callerLineNumber);
+            AddLogEntry(FatalLogs, filter, message, LogLevel.Fatal, project, ns, className, callerName, callerFilePath, callerLineNumber);
         }
         #endregion
         
