@@ -73,12 +73,18 @@ namespace LogUtility
                 
                 string levelName = Enum.GetName(typeof(LogLevel), level);
                 string projectInfo = string.IsNullOrEmpty(project) ? "" : $"{project}";
-                string fileInfo = string.IsNullOrEmpty(filePath) ? "" : $"file:///{filePath} {lineNumber}";
+
+                // Convert Windows paths to URI format
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    filePath = new Uri(filePath).AbsoluteUri;  // Converts to file:///C:/path/to/file.cs
+                }
+
+                string fileInfo = string.IsNullOrEmpty(filePath) ? "" : $"{filePath} : {lineNumber}"; 
                 string classMethodInfo = string.IsNullOrEmpty(className) ? "" : $" - {className}.{methodName}";
 
-                string logMessage = $"[{levelName}] {currentTime}: [{filter}] {message}, [{projectInfo} | {fileInfo} | {classMethodInfo}]";
+                string logMessage = $"[{levelName}] {currentTime}: [{filter}] {message}, [{fileInfo}]";
                 WriteLog(logMessage, color);
-
             }
         }
 
