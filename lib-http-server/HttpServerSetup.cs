@@ -19,6 +19,7 @@ namespace UtilityHttpServer
         private int _connectionCounter = 0;
         private string _swaggerName;
         private string _swaggerVersion;
+        private bool _useRazorViews;
 
         public HttpServerSetup(string[] args,
                                string configPath,
@@ -44,6 +45,7 @@ namespace UtilityHttpServer
                           swaggerDescription,
                           swaggerXml);
 
+            _useRazorViews = useRazorViews;
             if (useRazorViews)
             {
                 // Add MVC services
@@ -186,12 +188,15 @@ namespace UtilityHttpServer
                 options.RoutePrefix = "docs";
             });
 
-            // Add support for static files and enable routing for MVC
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.MapControllers();
-            app.MapRazorPages();
-
+            if (_useRazorViews)
+            {
+                // Add support for static files and enable routing for MVC
+                app.UseStaticFiles();
+                app.UseRouting();
+                app.MapControllers();
+                app.MapRazorPages();
+            }
+            
             // Enable Buffering for request body payload
             app.Use(async (context, next) =>
             {
