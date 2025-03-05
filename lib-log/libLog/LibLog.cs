@@ -8,6 +8,7 @@ namespace LogUtility
     {
         
         private static object _lock = new object();
+        public static LibLogSettings Settings = new LibLogSettings();
         
         // log saver
         public static Dictionary<string, List<LibLogEntry>> DebugLogs = new();
