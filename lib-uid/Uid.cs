@@ -26,8 +26,6 @@ namespace lib
         /// <exception cref="ArgumentException">Thrown when the value is zero.</exception>
         public Uid64(ulong value)
         {
-            Utils.Assert(value != 0, "Use one of the static methods to get a Uid64 instance");
-
             _value = value;
         }
 
@@ -111,7 +109,7 @@ namespace lib
             ValidateUidIntValue(value);
             return new Uid64(value);
         }
-        
+
         public static Uid64 InvalidUid()
         {
             return new Uid64(1);
