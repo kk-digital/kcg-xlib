@@ -37,6 +37,12 @@ namespace LogUtility
             string project = null, string ns = null, string className = null, 
             string methodName = null, string filePath = null, int lineNumber = 0)
         {
+
+            if (!LibLogUtility.IsLogEnabled(level, Settings))
+            {
+                return;
+            }
+            
             lock (_lock)
             {
                 if (!logDictionary.ContainsKey(filter))
