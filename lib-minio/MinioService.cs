@@ -109,6 +109,14 @@ public class MinioService
 
             // Check if the object exists by calling StatObject
             ObjectStat stat = await _minioClient.StatObjectAsync(args);
+            
+            // Checks if object is valid, if not MinIO probably is unavailable.
+            if (!IsValidObjectStat(stat))
+            {
+                Console.WriteLine($"Could not find object '{objectName}', please check server availability.");
+                return false;
+            }
+            
             return true;
         }
         catch (ObjectNotFoundException)
@@ -117,8 +125,8 @@ public class MinioService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error occurred: {e.Message}");
-            return true;
+            Console.WriteLine($"Error occurred while checking object existence: {e.Message}");
+            return false;
         }
     }
     //==========================================================================================================================
@@ -195,6 +203,32 @@ public class MinioService
         {
             return false;
         }
+    }
+    //==========================================================================================================================
+    // Validate ObjectStat because when the server is offline
+    // it returns a valid ObjectStat that is null
+    private bool IsValidObjectStat(ObjectStat stat)
+    {
+        if (string.IsNullOrWhiteSpace(stat.ObjectName))
+            return false;
+
+        if (stat.Size <= 0)
+            return false;
+
+        if (stat.LastModified == default || stat.LastModified.Year <= 1)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(stat.ContentType))
+            return false;
+
+        if (string.IsNullOrWhiteSpace(stat.ETag))
+            return false;
+
+        if ((stat.MetaData == null || stat.MetaData.Count == 0) &&
+            (stat.ExtraHeaders == null || stat.ExtraHeaders.Count == 0))
+            return false;
+
+        return true;
     }
     //==========================================================================================================================
 }
