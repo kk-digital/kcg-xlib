@@ -2,6 +2,7 @@
 using Minio.DataModel;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
+using LogUtility;
 
 namespace LibMinio;
 
@@ -41,12 +42,12 @@ public class MinioService
             if (!bucketExists)
             {
                 await _minioClient.MakeBucketAsync(makeBucketArgs);
-                Console.WriteLine($"Bucket '{_bucketName}' created.");
+                LibLog.LogInfo($"Bucket '{_bucketName}' created.");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            LibLog.LogError($"Error creating bucket: {ex}");
             return $"Error: {ex.Message}";
         }
 
@@ -56,7 +57,7 @@ public class MinioService
         }
         else
         {
-            Console.WriteLine($"Error uploading file '{objectName}'!");
+            LibLog.LogError($"Error uploading file '{objectName}'!");
             return $"Error uploading file '{objectName}'!";
         }
     }
@@ -70,7 +71,7 @@ public class MinioService
             // Check if the object already exists in the bucket
             if (await ObjectExistInBucket(objectName))
             {
-                Console.WriteLine($"File '{objectName}' already exists in the bucket.");
+                LibLog.LogInfo($"File '{objectName}' already exists in the bucket.");
                 return true;
             }
 
@@ -88,12 +89,12 @@ public class MinioService
                 await _minioClient.PutObjectAsync(putObjectArgs);
             }
 
-            Console.WriteLine($"File '{objectName}' uploaded successfully.");
+            LibLog.LogInfo($"File '{objectName}' uploaded successfully.");
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to upload '{objectName}'. {ex.Message}");
+            LibLog.LogError($"Failed to upload '{objectName}'. {ex.Message}");
             return false;
         }
     }
@@ -109,6 +110,14 @@ public class MinioService
 
             // Check if the object exists by calling StatObject
             ObjectStat stat = await _minioClient.StatObjectAsync(args);
+            
+            // Checks if object is valid, if not MinIO probably is unavailable.
+            if (!IsValidObjectStat(stat))
+            {
+                LibLog.LogWarning($"Could not find object '{objectName}', please check server availability.");
+                return false;
+            }
+            
             return true;
         }
         catch (ObjectNotFoundException)
@@ -117,8 +126,8 @@ public class MinioService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error occurred: {e.Message}");
-            return true;
+            LibLog.LogError($"Error occurred while checking object existence: {e.Message}");
+            return false;
         }
     }
     //==========================================================================================================================
@@ -147,7 +156,7 @@ public class MinioService
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            LibLog.LogError(ex.Message);
             return null;  // Return null if an error occurs (e.g., file not found)
         }
     }
@@ -172,8 +181,9 @@ public class MinioService
 
             return objectList;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            LibLog.LogError(ex.Message);
             return null;
         }
     }
@@ -191,10 +201,37 @@ public class MinioService
             await _minioClient.RemoveObjectAsync(args);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            LibLog.LogError(ex.Message);
             return false;
         }
+    }
+    //==========================================================================================================================
+    // Validate ObjectStat because when the server is offline
+    // it returns a valid ObjectStat that is null
+    private bool IsValidObjectStat(ObjectStat stat)
+    {
+        if (string.IsNullOrWhiteSpace(stat.ObjectName))
+            return false;
+
+        if (stat.Size <= 0)
+            return false;
+
+        if (stat.LastModified == default || stat.LastModified.Year <= 1)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(stat.ContentType))
+            return false;
+
+        if (string.IsNullOrWhiteSpace(stat.ETag))
+            return false;
+
+        if ((stat.MetaData == null || stat.MetaData.Count == 0) &&
+            (stat.ExtraHeaders == null || stat.ExtraHeaders.Count == 0))
+            return false;
+
+        return true;
     }
     //==========================================================================================================================
 }
