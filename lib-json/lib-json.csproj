@@ -8,4 +8,8 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <OutputPath>build/</OutputPath>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\lib-log\lib-log.csproj" />
+    </ItemGroup>
 </Project>

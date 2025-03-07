@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LogUtility;
 
 namespace libJson
 {
@@ -58,7 +59,8 @@ namespace libJson
             }
             catch (JsonException ex)
             {
-                throw new InvalidOperationException("Deserialization failed.", ex);
+                LibLog.LogDebug($"error deserializing: {ex}");
+                return default(T);
             }
         }
         
