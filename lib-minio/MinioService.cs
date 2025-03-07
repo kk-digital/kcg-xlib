@@ -5,17 +5,34 @@ using Minio.Exceptions;
 
 namespace LibMinio;
 
+// Enum to represent different types of images
+public enum ImageType
+{
+    PinterestThumbnail,
+    PinterestFullImage,
+    YoutubeThumbnail
+}
+
 // use to interact with MinIO for managing image files
 public class MinioService
 {
     //==========================================================================================================================
     private readonly MinioClient _minioClient;
-    private readonly string _bucketName;
+    private readonly string _defaultBucketName;
+    private readonly Dictionary<ImageType, string> _bucketMap;
     //==========================================================================================================================
     // constructor
-    public MinioService(string bucketName, string endpoint, string accessKey, string secretKey)
+    public MinioService(string defaultBucketName, string endpoint, string accessKey, string secretKey)
     {
-        _bucketName = bucketName;
+        _defaultBucketName = defaultBucketName;
+
+        // Initialize the bucket mapping
+        _bucketMap = new Dictionary<ImageType, string>
+        {
+            { ImageType.PinterestThumbnail, "pinterest-thumbnails" },
+            { ImageType.PinterestFullImage, "pinterest-full-images" },
+            { ImageType.YoutubeThumbnail, "youtube-thumbnails" }
+        };
 
         _minioClient = new();
         _minioClient.WithEndpoint(endpoint);
@@ -23,26 +40,45 @@ public class MinioService
         _minioClient.Build();
     }
 
+    // Get the appropriate bucket name based on image type
+    private string GetBucketName(ImageType? imageType = null)
+    {
+        if (imageType == null)
+        {
+            return _defaultBucketName;
+        }
+
+        return _bucketMap[(ImageType)imageType];
+    }
+
+    // Ensure the bucket exists, create if it doesn't
+    private async Task EnsureBucketExistsAsync(string bucketName)
+    {
+        BucketExistsArgs bucketExistArgs = new();
+        bucketExistArgs.WithBucket(bucketName);
+
+        MakeBucketArgs makeBucketArgs = new();
+        makeBucketArgs.WithBucket(bucketName);
+
+        // Ensure the bucket exists
+        bool bucketExists = await _minioClient.BucketExistsAsync(bucketExistArgs);
+
+        if (!bucketExists)
+        {
+            await _minioClient.MakeBucketAsync(makeBucketArgs);
+            Console.WriteLine($"Bucket '{bucketName}' created.");
+        }
+    }
+
     //==========================================================================================================================
     // Upload an image
-    public async Task<string> UploadImageAsync(byte[] file, string objectName)
+    public async Task<string> UploadImageAsync(byte[] file, string objectName, ImageType? imageType = null)
     {
+        string bucketName = GetBucketName(imageType);
+        
         try
         {
-            BucketExistsArgs bucketExistArgs = new();
-            bucketExistArgs.WithBucket(_bucketName);
-
-            MakeBucketArgs makeBucketArgs = new();
-            makeBucketArgs.WithBucket(_bucketName);
-
-            // Ensure the bucket exists
-            bool bucketExists = await _minioClient.BucketExistsAsync(bucketExistArgs);
-
-            if (!bucketExists)
-            {
-                await _minioClient.MakeBucketAsync(makeBucketArgs);
-                Console.WriteLine($"Bucket '{_bucketName}' created.");
-            }
+            await EnsureBucketExistsAsync(bucketName);
         }
         catch (Exception ex)
         {
@@ -50,7 +86,7 @@ public class MinioService
             return $"Error: {ex.Message}";
         }
 
-        if (await UploadImageToMinio(file, objectName))
+        if (await UploadImageToMinio(file, objectName, bucketName))
         {
             return $"File '{objectName}' uploaded successfully.";
         }
@@ -61,16 +97,16 @@ public class MinioService
         }
     }
     //==========================================================================================================================
-    async Task<bool> UploadImageToMinio(byte[] fileData, string objectName)
+    async Task<bool> UploadImageToMinio(byte[] fileData, string objectName, string bucketName)
     {
         try
         {
             string contentType = "application/octet-stream";
 
             // Check if the object already exists in the bucket
-            if (await ObjectExistInBucket(objectName))
+            if (await ObjectExistInBucket(objectName, bucketName))
             {
-                Console.WriteLine($"File '{objectName}' already exists in the bucket.");
+                Console.WriteLine($"File '{objectName}' already exists in the bucket '{bucketName}'.");
                 return true;
             }
 
@@ -79,7 +115,7 @@ public class MinioService
             {
                 PutObjectArgs putObjectArgs = new();
 
-                putObjectArgs.WithBucket(_bucketName);
+                putObjectArgs.WithBucket(bucketName);
                 putObjectArgs.WithObject(objectName);
                 putObjectArgs.WithStreamData(stream);
                 putObjectArgs.WithObjectSize(fileData.Length);
@@ -88,23 +124,25 @@ public class MinioService
                 await _minioClient.PutObjectAsync(putObjectArgs);
             }
 
-            Console.WriteLine($"File '{objectName}' uploaded successfully.");
+            Console.WriteLine($"File '{objectName}' uploaded successfully to bucket '{bucketName}'.");
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to upload '{objectName}'. {ex.Message}");
+            Console.WriteLine($"Failed to upload '{objectName}' to bucket '{bucketName}'. {ex.Message}");
             return false;
         }
     }
     //==========================================================================================================================
-    public async Task<bool> ObjectExistInBucket(string objectName)
+    public async Task<bool> ObjectExistInBucket(string objectName, string bucketName = null)
     {
+        bucketName = bucketName ?? _defaultBucketName;
+        
         try
         {
             StatObjectArgs args = new();
 
-            args.WithBucket(_bucketName);
+            args.WithBucket(bucketName);
             args.WithObject(objectName);
 
             // Check if the object exists by calling StatObject
@@ -121,17 +159,25 @@ public class MinioService
             return true;
         }
     }
+
+    // Overload to support the enum version
+    public async Task<bool> ObjectExistInBucket(string objectName, ImageType imageType)
+    {
+        return await ObjectExistInBucket(objectName, GetBucketName(imageType));
+    }
     //==========================================================================================================================
     // Download an image
-    public async Task<byte[]> DownloadImageAsByteArrayAsync(string objectName)
+    public async Task<byte[]> DownloadImageAsByteArrayAsync(string objectName, ImageType? imageType = null)
     {
+        string bucketName = GetBucketName(imageType);
+        
         try
         {
             using (MemoryStream memoryStream = new())
             {
                 GetObjectArgs args = new();
 
-                args.WithBucket(_bucketName);
+                args.WithBucket(bucketName);
                 args.WithObject(objectName);
                 args.WithCallbackStream((stream) =>
                 {
@@ -153,13 +199,15 @@ public class MinioService
     }
     //==========================================================================================================================
     // Get a list of all objects in the bucket
-    public async Task<List<string>> ListObjectsAsync()
+    public async Task<List<string>> ListObjectsAsync(ImageType? imageType = null)
     {
+        string bucketName = GetBucketName(imageType);
+        
         try
         {
             ListObjectsArgs args = new();
 
-            args.WithBucket(_bucketName);
+            args.WithBucket(bucketName);
 
             List<string> objectList = new();
 
@@ -179,13 +227,15 @@ public class MinioService
     }
     //==========================================================================================================================
     // Delete an image from the bucket
-    public async Task<bool> DeleteImageAsync(string objectName)
+    public async Task<bool> DeleteImageAsync(string objectName, ImageType? imageType = null)
     {
+        string bucketName = GetBucketName(imageType);
+        
         try
         {
             RemoveObjectArgs args = new();
 
-            args.WithBucket(_bucketName);
+            args.WithBucket(bucketName);
             args.WithObject(objectName);
 
             await _minioClient.RemoveObjectAsync(args);
