@@ -2,6 +2,7 @@
 using Minio.DataModel;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
+using LogUtility;
 
 namespace LibMinio;
 
@@ -41,12 +42,12 @@ public class MinioService
             if (!bucketExists)
             {
                 await _minioClient.MakeBucketAsync(makeBucketArgs);
-                Console.WriteLine($"Bucket '{_bucketName}' created.");
+                LibLog.LogInfo($"Bucket '{_bucketName}' created.");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            LibLog.LogError($"Error creating bucket: {ex}");
             return $"Error: {ex.Message}";
         }
 
@@ -56,7 +57,7 @@ public class MinioService
         }
         else
         {
-            Console.WriteLine($"Error uploading file '{objectName}'!");
+            LibLog.LogError($"Error uploading file '{objectName}'!");
             return $"Error uploading file '{objectName}'!";
         }
     }
@@ -70,7 +71,7 @@ public class MinioService
             // Check if the object already exists in the bucket
             if (await ObjectExistInBucket(objectName))
             {
-                Console.WriteLine($"File '{objectName}' already exists in the bucket.");
+                LibLog.LogInfo($"File '{objectName}' already exists in the bucket.");
                 return true;
             }
 
@@ -88,12 +89,12 @@ public class MinioService
                 await _minioClient.PutObjectAsync(putObjectArgs);
             }
 
-            Console.WriteLine($"File '{objectName}' uploaded successfully.");
+            LibLog.LogInfo($"File '{objectName}' uploaded successfully.");
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to upload '{objectName}'. {ex.Message}");
+            LibLog.LogError($"Failed to upload '{objectName}'. {ex.Message}");
             return false;
         }
     }
@@ -113,7 +114,7 @@ public class MinioService
             // Checks if object is valid, if not MinIO probably is unavailable.
             if (!IsValidObjectStat(stat))
             {
-                Console.WriteLine($"Could not find object '{objectName}', please check server availability.");
+                LibLog.LogWarning($"Could not find object '{objectName}', please check server availability.");
                 return false;
             }
             
@@ -125,7 +126,7 @@ public class MinioService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error occurred while checking object existence: {e.Message}");
+            LibLog.LogError($"Error occurred while checking object existence: {e.Message}");
             return false;
         }
     }
@@ -155,7 +156,7 @@ public class MinioService
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            LibLog.LogError(ex.Message);
             return null;  // Return null if an error occurs (e.g., file not found)
         }
     }
@@ -180,8 +181,9 @@ public class MinioService
 
             return objectList;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            LibLog.LogError(ex.Message);
             return null;
         }
     }
@@ -199,8 +201,9 @@ public class MinioService
             await _minioClient.RemoveObjectAsync(args);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            LibLog.LogError(ex.Message);
             return false;
         }
     }
