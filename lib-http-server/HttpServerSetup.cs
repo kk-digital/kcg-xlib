@@ -63,11 +63,11 @@ namespace UtilityHttpServer
             builder.WebHost.UseUrls(serverUrl);
         }
 
-        public HttpServer InitServer(int maxConnections)
+        public HttpServer InitServer(int maxConnections, bool useDefaultEndpoints = true)
         {
             WebApplication app = builder.Build();
             DefaultAppSetup(app, maxConnections);
-            return new HttpServer(app);
+            return new HttpServer(app, useDefaultEndpoints);
         }
 
         private static bool IsAddressInUse(string url)
