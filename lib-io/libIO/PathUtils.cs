@@ -52,7 +52,25 @@ public static class PathUtils
     
     public static string GetFullPath(string path)
     {
-        return Path.GetFullPath(path).Replace('\\', '/');
+        string solutionPath = PathUtils.FindSolutionDirectory();
+        return Combine(solutionPath, path);
+    }
+
+    public static string FindSolutionDirectory()
+    {
+        string projectPath = AppDomain.CurrentDomain.BaseDirectory;
+        DirectoryInfo directory = new DirectoryInfo(projectPath);
+
+        while (directory != null)
+        {
+            if (Directory.GetFiles(directory.FullName, "*.sln").Length > 0)
+            {
+                return directory.FullName.Replace('\\', '/');
+            }
+            directory = directory.Parent;
+        }
+
+        return null;
     }
 
     public static string GetAbsolutePath(string baseDirectory, string relativePath)
