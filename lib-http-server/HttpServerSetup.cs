@@ -17,35 +17,33 @@ namespace UtilityHttpServer
         public IConfigurationRoot appSettings;
         public WebApplicationBuilder builder;
         private int _connectionCounter = 0;
-        private string _swaggerName;
-        private string _swaggerVersion;
-        private bool _useRazorViews;
 
         public HttpServerSetup(string[] args,
                                string configPath,
-                               string configName,
-                               string swaggerName,
-                               string swaggerVersion,
-                               string swaggerTitle,
-                               string swaggerDescription,
-                               string swaggerXml,
-                               bool useRazorViews = false
+                               string configName
                                )
         {
-            _swaggerName = swaggerName;
-            _swaggerVersion = swaggerVersion;
-
             builder = WebApplication.CreateBuilder(args);
             appSettings = CreateConfig(configPath, configName);
+        }
 
+        public HttpServer InitServer(string swaggerName,
+                                     string swaggerVersion,
+                                     string swaggerTitle,
+                                     string swaggerDescription,
+                                     string swaggerXml,
+                                     bool useRazorViews = false,
+                                     int maxConnections = 1000,
+                                     bool useDefaultEndpoints = true)
+        {
+            
             SetLogging();
             SetSwaggerGen(swaggerName,
-                          swaggerVersion,
-                          swaggerTitle,
-                          swaggerDescription,
-                          swaggerXml);
+                swaggerVersion,
+                swaggerTitle,
+                swaggerDescription,
+                swaggerXml);
 
-            _useRazorViews = useRazorViews;
             if (useRazorViews)
             {
                 // Add MVC services
@@ -61,12 +59,9 @@ namespace UtilityHttpServer
             Utils.Assert(!IsAddressInUse(serverUrl), $"Server URL {serverUrl} is already in use.");
 
             builder.WebHost.UseUrls(serverUrl);
-        }
-
-        public HttpServer InitServer(int maxConnections, bool useDefaultEndpoints = true)
-        {
+            
             WebApplication app = builder.Build();
-            DefaultAppSetup(app, maxConnections);
+            DefaultAppSetup(app, maxConnections, swaggerVersion, swaggerName, useRazorViews);
             HttpServer server = new (app, useDefaultEndpoints);
             return server;
         }
@@ -178,18 +173,22 @@ namespace UtilityHttpServer
             });
         }
 
-        private void DefaultAppSetup(WebApplication app, int maxConnections)
+        private void DefaultAppSetup(WebApplication app, 
+                                     int maxConnections,
+                                     string swaggerVersion,
+                                     string swaggerName,
+                                     bool useRazorViews)
         {
             // Enable CORS
             app.UseCors("AllowSpecificOrigin");
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint($"/swagger/{_swaggerVersion}/swagger.json", _swaggerName);
+                options.SwaggerEndpoint($"/swagger/{swaggerVersion}/swagger.json", swaggerName);
                 options.RoutePrefix = "docs";
             });
 
-            if (_useRazorViews)
+            if (useRazorViews)
             {
                 // Add support for static files and enable routing for MVC
                 app.UseStaticFiles();
