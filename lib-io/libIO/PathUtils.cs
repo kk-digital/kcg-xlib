@@ -54,7 +54,6 @@ public static class PathUtils
     {
         string solutionPath = PathUtils.FindSolutionDirectory();
         return Combine(solutionPath, path);
-        //return Path.GetFullPath(path).Replace('\\', '/');
     }
 
     public static string FindSolutionDirectory()
