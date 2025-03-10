@@ -52,7 +52,7 @@ public static class PathUtils
     
     public static string GetFullPath(string path)
     {
-        string solutionPath = PathUtils.FindSolutionDirectory();
+        string solutionPath = FindSolutionDirectory();
         return Combine(solutionPath, path);
     }
 
