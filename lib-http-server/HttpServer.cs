@@ -5,10 +5,21 @@ namespace UtilityHttpServer;
 public class HttpServer
 {
     private WebApplication _app;
-    
-    public HttpServer(WebApplication newApp)
+    public PubkeySession _pubkeySession { get; private set; }
+
+    public HttpServer(WebApplication newApp, bool useDefaultEndpoints = true)
     {
         _app = newApp;
+        _pubkeySession = null;
+        if (useDefaultEndpoints)
+        { 
+            DefaultEndpoints.RegisterEndpoints(this);
+        }
+    }
+
+    public void StartPubkeySession(PubkeySession pubkeySession)
+    {
+        _pubkeySession = pubkeySession;
     }
     
     public RouteHandlerBuilder AddGetEndPoint(string route, Delegate handler)
