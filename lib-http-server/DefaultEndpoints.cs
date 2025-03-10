@@ -6,11 +6,8 @@ namespace UtilityHttpServer;
 
 public static class DefaultEndpoints
 {
-    private static HttpServer _server = null;
     public static void RegisterEndpoints(HttpServer server)
     {
-        _server = server;
-        
         server.AddGetEndPoint("/status",
                 () =>
                 {
@@ -27,7 +24,7 @@ public static class DefaultEndpoints
         server.AddGetEndPoint("/status/pubkey",
                 () =>
                 {
-                    return GetPubkey();
+                    return GetPubkey(server);
                 })
             .WithTags("Status")
             .Produces<PubkeySession>(200)
@@ -40,21 +37,24 @@ public static class DefaultEndpoints
             });
     }
     
-    private static IResult GetPubkey()
+    private static IResult GetPubkey(HttpServer server)
     {
-        if (_server._pubkeySession == null || string.IsNullOrEmpty(_server._pubkeySession.Pubkey))
+        if (server._pubkeySession == null || string.IsNullOrEmpty(server._pubkeySession.Pubkey))
         {
             return Results.NotFound(new {Error = "Public key not defined in server." });
         }
 
-        if (DateTime.UtcNow > _server._pubkeySession.ValidTimeEnd ||
-            DateTime.UtcNow < _server._pubkeySession.ValidTimeStart)
+        if (DateTime.UtcNow > server._pubkeySession.ValidTimeEnd ||
+            DateTime.UtcNow < server._pubkeySession.ValidTimeStart)
         {
             return Results.Unauthorized();
         }
         
-        var response = new PubkeyServer {Type = _server._pubkeySession.Type, 
-                                         Pubkey = _server._pubkeySession.Pubkey };
+        PubkeyServer response = new PubkeyServer { 
+            Type = server._pubkeySession.Type, 
+            Pubkey = server._pubkeySession.Pubkey 
+        };
+        
         return Results.Ok(response);
     }
 }

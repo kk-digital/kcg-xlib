@@ -67,7 +67,8 @@ namespace UtilityHttpServer
         {
             WebApplication app = builder.Build();
             DefaultAppSetup(app, maxConnections);
-            return new HttpServer(app, useDefaultEndpoints);
+            HttpServer server = new (app, useDefaultEndpoints);
+            return server;
         }
 
         private static bool IsAddressInUse(string url)
